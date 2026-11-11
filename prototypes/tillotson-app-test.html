@@ -1,0 +1,797 @@
+<title>Tillotson App Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width app column, navy header band, bottom tab bar; same look as the event app. */
+:root {
+  --bg: #EEF2F6; --surface: #FFFFFF; --sunk: #E2E8EE; --ink: #0D141B; --muted: #44515E; --line: #C9D2DB;
+  --brand: #0B1B2B; --brand-ink: #FFFFFF; --brand-muted: #A9BCCF;
+  --accent: #0074C8; --accent-ink: #FFFFFF; --accent-text: #0067B3; --accent-soft: #DCEBF8;
+  --ok: #12733F; --ok-soft: #D9F2E3; --warn: #8A5300; --warn-soft: #FDEFD3; --danger: #B42318; --danger-soft: #FDE4E1;
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --live: #C62A1F;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #081019; --surface: #111C27; --sunk: #1A2734; --ink: #EAF0F5; --muted: #A3B2C0; --line: #2B3B4B;
+  --brand: #050B12; --brand-ink: #FFFFFF; --brand-muted: #8EA3B8;
+  --accent: #2B93E0; --accent-ink: #FFFFFF; --accent-text: #6BB8F0; --accent-soft: #12314B;
+  --ok: #5FD08F; --ok-soft: #173627; --warn: #F2BC5C; --warn-soft: #3C2D12; --danger: #FF8A80; --danger-soft: #43201D;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #081019; --surface: #111C27; --sunk: #1A2734; --ink: #EAF0F5; --muted: #A3B2C0; --line: #2B3B4B;
+  --brand: #050B12; --brand-ink: #FFFFFF; --brand-muted: #8EA3B8;
+  --accent: #2B93E0; --accent-ink: #FFFFFF; --accent-text: #6BB8F0; --accent-soft: #12314B;
+  --ok: #5FD08F; --ok-soft: #173627; --warn: #F2BC5C; --warn-soft: #3C2D12; --danger: #FF8A80; --danger-soft: #43201D;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+html, body { height: 100% }
+body { background: var(--bg); color: var(--ink); font: 500 16px/1.45 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--brand) }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; margin: 0; line-height: 1.05; text-transform: uppercase; text-wrap: balance }
+p { margin: 0 }
+button, input, select { font: inherit; color: inherit }
+a { color: var(--accent-text) }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+
+.app { max-width: 460px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; background: var(--bg); position: relative }
+@media (min-width: 520px) { .app { border-inline: 1px solid var(--line); box-shadow: 0 0 40px rgba(0,0,0,.08) } }
+.pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+
+.top { background: var(--brand); color: var(--brand-ink); padding-block: 18px 20px; display: flex; flex-direction: column; gap: 6px; border-bottom: 4px solid var(--accent) }
+.top .eyebrow { font: 700 12px var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--brand-muted) }
+.top h1 { font-size: 34px }
+.top .sub { color: var(--brand-muted); font-size: 15px }
+.top .back { align-self: flex-start; background: none; border: 0; color: var(--brand-ink); font-weight: 700; padding: 6px 0; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 40px }
+.brandrow { display: flex; align-items: center; gap: 10px }
+.mark { width: 38px; height: 38px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; font: 800 21px var(--f-display); color: #fff; flex: none }
+
+main { flex: 1; padding-block: 18px 150px; display: flex; flex-direction: column; gap: 16px }
+.card { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+.card h2 { font-size: 22px }
+.card h3 { font-size: 19px }
+.label { font: 700 12px var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.muted { color: var(--muted) }
+.small { font-size: 14px }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.spread { display: flex; justify-content: space-between; gap: 10px; align-items: center }
+.stack { display: flex; flex-direction: column; gap: 10px }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 99px; border: 0; background: var(--accent); color: var(--accent-ink); font: 700 17px var(--f-body); cursor: pointer; text-decoration: none; text-align: center }
+.btn.block { width: 100% }
+.btn.ghost { background: var(--surface); color: var(--accent-text); border: 2px solid var(--line) }
+.btn.small { min-height: 40px; font-size: 15px; padding: 0 14px }
+.btn.live { background: var(--live); color: #fff }
+.btn:disabled { opacity: .45; cursor: default }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent-text); font-weight: 700; cursor: pointer; text-decoration: underline; text-align: left }
+
+.field { display: flex; flex-direction: column; gap: 5px }
+.field label { font-weight: 700; font-size: 15px }
+.field input, .field select { min-height: 50px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); width: 100% }
+.field .hint { font-size: 13px; color: var(--muted) }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.two > * { min-width: 0 }
+
+.choice { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 2px solid var(--line); border-radius: var(--r); background: var(--surface); cursor: pointer; text-align: left; width: 100% }
+.choice.on { border-color: var(--accent); background: var(--accent-soft) }
+.choice .tick { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; margin-top: 2px }
+.choice.on .tick { background: var(--accent); border-color: var(--accent); color: #fff }
+.choice .body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 }
+.choice b { font-size: 17px }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1.2 var(--f-body); text-transform: uppercase; letter-spacing: .05em; padding: 6px 9px; border-radius: 99px; background: var(--sunk); color: var(--muted) }
+.chip.ok { background: var(--ok-soft); color: var(--ok) }
+.chip.warn { background: var(--warn-soft); color: var(--warn) }
+.chip.hot { background: var(--danger-soft); color: var(--danger) }
+.chip.blue { background: var(--accent-soft); color: var(--accent-text) }
+
+.steps { display: flex; gap: 6px }
+.steps i { flex: 1; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--brand-ink) 22%, transparent) }
+.steps i.on { background: var(--accent) }
+
+.idcard { background: linear-gradient(135deg, #0B1B2B 0%, #0B2D4A 60%, #0074C8 140%); color: #fff; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden }
+.idcard .num { font: 700 24px var(--f-display); letter-spacing: .06em }
+.idcard .lbl { font: 700 11px var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: #A9BCCF }
+.idcard .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px }
+.idcard .grid b { display: block; font-size: 15px }
+
+.notice { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 12px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line) }
+.notice:first-of-type { border-top: 0; padding-top: 0 }
+.notice .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text) }
+.notice .ic.ok { background: var(--ok-soft); color: var(--ok) }
+.notice .ic.warn { background: var(--warn-soft); color: var(--warn) }
+.notice b { display: block }
+.notice small { color: var(--muted); font-size: 13px }
+
+/* calendar */
+.month { display: flex; flex-direction: column; gap: 10px }
+.month h2 { font-size: 24px; color: var(--accent-text); border-bottom: 3px solid var(--accent); padding-bottom: 4px }
+.month.past h2 { color: var(--muted); border-bottom-color: var(--line) }
+.entry { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 4px; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); padding: 14px; border-left: 7px solid var(--accent) }
+.entry.k-international { border-left-color: var(--brand) }
+.entry.k-pre_season, .entry.k-other { border-left-color: var(--warn) }
+.entry .when { display: flex; gap: 8px; align-items: baseline }
+.entry .when b { font: 700 21px/1.05 var(--f-display); text-transform: uppercase }
+.entry .when span { font: 600 14px var(--f-body); color: var(--muted) }
+.entry .kicker { font: 700 12px var(--f-body); text-transform: uppercase; letter-spacing: .07em; color: var(--muted) }
+.entry h3 { font-size: 22px }
+.entry p { font-size: 15px; color: var(--muted) }
+.venue { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 10px 4px 6px; margin-left: -6px; border-radius: 99px; color: var(--accent-text); font: 700 17px var(--f-body); background: none; border: 0; cursor: pointer; text-align: left }
+.venue:hover { background: var(--accent-soft); text-decoration: underline }
+.tags { display: flex; gap: 6px; flex-wrap: wrap }
+.entry.next { border-width: 2.5px; border-color: var(--accent); border-left-width: 7px; box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 22%, transparent); scroll-margin-top: 70px }
+.flag { position: absolute; top: -11px; right: 12px; padding: 3px 10px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); font: 700 12px var(--f-body); text-transform: uppercase; letter-spacing: .06em }
+.entry.finished { grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 2px 10px; padding: 8px 12px; background: var(--sunk); border-color: var(--sunk); border-left: 7px solid var(--line); color: var(--muted) }
+.entry.finished .when b { font-size: 16px; color: var(--muted) }
+.entry.finished h3 { font-size: 17px; color: var(--muted) }
+.entry.finished .venue { min-height: 0; padding: 0; margin: 0; font-size: 14px; font-weight: 600; color: var(--muted) }
+.entry.finished .side { grid-column: 2; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 6px; align-items: flex-end }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; animation: pulse 1.2s ease-in-out infinite }
+@keyframes pulse { 50% { opacity: .25 } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none } }
+
+/* track */
+.mapcard { position: relative; border-radius: var(--r); overflow: hidden; border: 1.5px solid var(--line); background: var(--sunk); aspect-ratio: 16 / 10; max-width: 100% }
+.mapcard svg { width: 100%; height: 100%; display: block }
+.mapcard .coords { position: absolute; left: 10px; bottom: 10px; background: var(--surface); border-radius: 8px; padding: 5px 9px; font: 600 13px var(--f-body); font-variant-numeric: tabular-nums }
+
+.list { display: flex; flex-direction: column }
+.list .li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); align-items: center }
+.list .li:first-child { border-top: 0 }
+.list .li > :first-child { min-width: 0 }
+.money { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap }
+.total { font: 700 26px var(--f-display); font-variant-numeric: tabular-nums }
+
+.status { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: var(--r) }
+.status.ok { background: var(--ok-soft); color: var(--ok) }
+.status.warn { background: var(--warn-soft); color: var(--warn) }
+.status .big { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface) }
+.status b { display: block; font-size: 18px }
+.status small { color: var(--ink); opacity: .85; font-size: 14px }
+
+.racenum { font: 800 64px/0.9 var(--f-display); color: var(--accent-text); font-variant-numeric: tabular-nums }
+.pin { font: 700 28px var(--f-display); letter-spacing: .3em; font-variant-numeric: tabular-nums }
+
+.licence { border-radius: 12px; overflow: hidden; border: 1.5px solid var(--line); max-width: 100% }
+.licence svg { display: block; width: 100%; height: auto }
+.docs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.doc { display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.doc .cap { font-size: 13px; font-weight: 700; display: flex; gap: 6px; align-items: center }
+
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; justify-content: center; pointer-events: none }
+.tabs nav { pointer-events: auto; width: 100%; max-width: 460px; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1.5px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px) }
+.tabs button { background: none; border: 0; min-height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 700 12px var(--f-body); color: var(--muted); cursor: pointer }
+.tabs button.on { color: var(--accent-text) }
+.tabs button.on svg { stroke: var(--accent-text) }
+.tabs .badge { position: absolute; margin-left: 22px; margin-top: -26px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--danger); color: #fff; font-size: 11px; display: grid; place-items: center }
+
+.testbtn { position: fixed; z-index: 6; right: max(14px, calc((100vw - 460px) / 2 + 14px), env(safe-area-inset-right, 0px)); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); min-height: 44px; padding: 0 14px; border-radius: 99px; border: 2px dashed var(--warn); background: var(--warn-soft); color: var(--warn); font: 700 14px var(--f-body); cursor: pointer; display: inline-flex; align-items: center; gap: 6px }
+.scrim { position: fixed; inset: 0; z-index: 20; background: rgba(5,11,18,.55); display: flex; align-items: flex-end; justify-content: center }
+.sheet { width: 100%; max-width: 460px; max-height: 88%; overflow: auto; background: var(--bg); border-radius: 18px 18px 0 0; padding-block: 18px calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px }
+.sheet h2 { font-size: 26px }
+.datechips { display: flex; flex-direction: column; gap: 8px }
+.toast { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(132px + env(safe-area-inset-bottom, 0px)); max-width: min(420px, calc(100vw - 32px)); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.25) }
+.testnote { font-size: 13px; color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 8px 12px }
+.qty { display: inline-flex; align-items: center; gap: 8px }
+.qty button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); font-weight: 800; font-size: 20px; cursor: pointer }
+.qty span { min-width: 18px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums }
+.kv { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 6px 14px; font-size: 15px }
+.kv dt { color: var(--muted); font-weight: 600 }
+.kv dd { margin: 0; font-weight: 700; overflow-wrap: anywhere }
+</style>
+
+<div class="app" id="app"></div>
+<div id="layer"></div>
+
+<script>
+/* ------------------------------------------------------------------ data
+   Same rules, prices, dates and tracks as the event app (tillotson-app repo). */
+const VENUES = {
+  "autodromo-de-leon": { name: "Autódromo de León", full: "Autódromo León", address: "Calle Jazmín, Las Arboledas, León, Guanajuato", country: "Mexico", lat: 21.035882, lng: -101.5748 },
+  "carmona": { name: "Carmona", full: "Carmona Race Track", address: "Bancal, Carmona, Cavite", country: "Philippines", lat: 14.281991, lng: 121.009068 },
+  "motorland": { name: "Motorland", full: "MotorLand Aragón", address: "Alcañiz, Teruel", country: "Spain", lat: 41.07781, lng: -0.19496 },
+  "lonato": { name: "Lonato", full: "South Garda Karting", address: "Via Corte Ferrarini, Lonato del Garda, Brescia", country: "Italy", lat: 45.42501, lng: 10.50606 },
+  "nutts-corner": { name: "Nutts Corner", full: "Nutts Corner Circuit", address: "Ballydonaghy Road, Crumlin, County Antrim", country: "Northern Ireland", lat: 54.62026, lng: -6.144292 },
+  "kiltorcan": { name: "Kiltorcan Raceway", full: "Kiltorcan Raceway", address: "Kiltorcan, County Kilkenny", country: "Ireland", lat: 52.462887, lng: -7.182296 },
+  "athboy": { name: "Athboy Karting Centre", full: "Athboy Karting Centre", address: "Copperalley, County Westmeath", country: "Ireland", lat: 53.610727, lng: -6.985793 },
+  "kartworld-cork": { name: "Kartworld, Cork", full: "Kartworld", address: "Watergrasshill, County Cork", country: "Ireland", lat: 52.001669, lng: -8.326413 },
+  "whiteriver-park": { name: "Whiteriver Park", full: "WhiteRiver Park Kart Racing Circuit", address: "R169, Collon, County Louth", country: "Ireland", lat: 53.798966, lng: -6.48215 },
+  "clay-pigeon": { name: "Clay Pigeon", full: "Clay Pigeon Raceway", address: "Long Ash Lane, Frome St Quintin, Dorchester, Dorset", country: "United Kingdom", lat: 50.82395, lng: -2.554449 },
+  "fulbeck": { name: "Fulbeck", full: "Fulbeck Kart Circuit", address: "Former RAF Fulbeck airfield, Fulbeck, Lincolnshire", country: "United Kingdom", lat: 53.04514, lng: -0.65543 },
+  "pfi": { name: "PFI", full: "PF International", address: "Stragglethorpe Lane, Caythorpe, Grantham, Lincolnshire", country: "United Kingdom", lat: 53.03878, lng: -0.65996 },
+  "forest-edge": { name: "Forest Edge", full: "Forest Edge Kart Club", address: "Basingstoke Road, Barton Stacey, Winchester, Hampshire", country: "United Kingdom", lat: 51.18037, lng: -1.36281 },
+  "rowrah": { name: "Rowrah", full: "The Lakeland Circuit, Rowrah", address: "A5086, Rowrah, Cumbria", country: "United Kingdom", lat: 54.55135, lng: -3.443203 },
+  "buckmore-park": { name: "Buckmore Park", full: "Buckmore Park Kart Circuit", address: "Chatham, Kent ME1 3DQ", country: "United Kingdom", lat: 51.343011, lng: 0.501241 },
+  "shenington": { name: "Shenington", full: "Shenington Kart Racing Club", address: "Rattlecombe Road, Shenington, Banbury, Oxfordshire", country: "United Kingdom", lat: 52.08159, lng: -1.47594 },
+  "whilton-mill": { name: "Whilton Mill", full: "Whilton Mill", address: "Roman Road, Whilton, Daventry, Northamptonshire", country: "United Kingdom", lat: 52.27712, lng: -1.08934 },
+  "warden-law": { name: "Warden Law", full: "Warden Law Motorsports Centre", address: "Hangmans Lane, Sunderland SR3 2PR", country: "United Kingdom", lat: 54.84308, lng: -1.428584, approx: true },
+};
+const G = ["Global"];
+const CAL = [
+  { r: G, k: "international", t: "T4 Americas Cup", s: "2027-02-12", e: "2027-02-14", v: "autodromo-de-leon", results: true },
+  { r: G, k: "international", t: "T4 Asia Cup", s: "2027-02-25", e: "2027-02-28", v: "carmona", results: true },
+  { r: G, k: "international", t: "T4 Euro Cup", s: "2027-05-05", e: "2027-05-08", v: "motorland", results: true },
+  { r: G, k: "international", t: "T4 Nations Cup", s: "2027-09-22", e: "2027-09-26", v: "lonato", event: "t4nc27", live: true },
+  { r: ["UK", "Ireland", "Northern Ireland"], k: "international", t: "IGP Plate", s: "2027-08-13", e: "2027-08-15", v: "nutts-corner" },
+  { r: ["Ireland"], k: "other", t: "KT Cup", s: "2027-03-14", e: "2027-03-14", v: "kiltorcan", tags: ["Non-championship"], d: "Motorsport Ireland permitted" },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 1", s: "2027-04-18", e: "2027-04-18", v: "kiltorcan", results: true, photos: true },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 2", s: "2027-05-16", e: "2027-05-16", v: "athboy", results: true },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 3", s: "2027-05-30", e: "2027-05-30", v: "kiltorcan", results: true },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 4", s: "2027-06-27", e: "2027-06-27", v: "kartworld-cork", results: true },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 5", s: "2027-07-10", e: "2027-07-11", v: "kiltorcan", live: true, results: true },
+  { r: ["Ireland"], k: "championship", t: "T4 Series Ireland · Round 6", s: "2027-08-08", e: "2027-08-08", v: "whiteriver-park" },
+  { r: ["UK"], k: "pre_season", t: "Winter Warmer", s: "2027-03-06", e: "2027-03-07", v: "clay-pigeon", d: "Pre-season event" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 1", s: "2027-04-03", e: "2027-04-04", v: "clay-pigeon" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 2", s: "2027-05-29", e: "2027-05-30", v: "fulbeck" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 3", s: "2027-06-18", e: "2027-06-20", v: "pfi", tags: ["T4 Nations Cup qualifier"], d: "British Kart Championship event" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 4", s: "2027-07-03", e: "2027-07-04", v: "forest-edge" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 5", s: "2027-07-31", e: "2027-08-01", v: "rowrah" },
+  { r: ["UK"], k: "championship", t: "T4 Series UK · Round 6", s: "2027-09-04", e: "2027-09-05", v: "buckmore-park" },
+  { r: ["UK"], k: "series", t: "UK Kart Series · Round 1", s: "2027-02-27", e: "2027-02-28", v: "shenington" },
+  { r: ["UK"], k: "series", t: "UK Kart Series · Round 2", s: "2027-05-15", e: "2027-05-16", v: "whilton-mill" },
+  { r: ["UK"], k: "series", t: "UK Kart Series · Round 3", s: "2027-10-09", e: "2027-10-10", v: "warden-law" },
+  { r: ["UK"], k: "series", t: "UK Kart Series · Round 4", s: "2027-11-06", e: "2027-11-07", v: "shenington" },
+].map((x, i) => ({ id: "c" + i, ...x }));
+const CAL_TITLE = { UK: "T4 Series UK", Ireland: "T4 Series Ireland" };
+const KIND = { championship: "Championship", pre_season: "Pre-season", international: "International", series: "Series", other: "Event" };
+
+const EVENT = {
+  name: "T4 Nations Cup 2027", venue: "lonato", s: "2027-09-22", e: "2027-09-26", host: "Italy (ACI Sport)",
+  opens: "15 January 2027", deposit: 30000,
+  tickets: {
+    opt1: { name: "Option 1", price: 279500, inc: ["Kart & trolley", "Transponder", "Practice tyres", "Race tyres", "Tent space", "Fuel", "Entry fees", "1 event T-shirt"] },
+    opt2: { name: "Option 2", price: 135000, inc: ["Transponder", "Practice tyres", "Race tyres", "Tent space", "Fuel", "Entry fees", "1 event T-shirt"], note: "Bring your own kart and trolley." },
+  },
+  clothing: [
+    { id: "tee", name: "Extra event T-shirt", price: 2500 },
+    { id: "polo", name: "Event polo", price: 3500 },
+    { id: "hoody", name: "Event hoody", price: 4500 },
+  ],
+  toolkit: 10000,
+  tees: ["Youth (age 8–10)", "Youth (age 12)", "S", "M", "L", "XL", "XXL", "3XL"],
+  seats: ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
+  slots: { progress: "Wed 22 September · 07:30–08:15", "T4 Senior168": "Wed 22 September · 09:45–10:15" },
+};
+const DATES = [
+  ["2026-11-11", "Today", "Before the season"],
+  ["2027-04-19", "19 April 2027", "Day after T4 Series Ireland · Round 1"],
+  ["2027-07-10", "10 July 2027", "T4 Series Ireland · Round 5 is on"],
+  ["2027-09-23", "23 September 2027", "At the T4 Nations Cup"],
+  ["2027-11-15", "15 November 2027", "Season over"],
+];
+
+/* ------------------------------------------------------------------ state */
+const START = () => ({
+  stage: "welcome", tab: "home", view: null, regStep: 0, today: "2026-11-11", region: "Ireland",
+  acct: { email: "mark.ffrench@example.com", password: "test-password", code: "482913" },
+  me: { first: "Mark", last: "Ffrench", dob: "1988-03-14", phone: "+353 87 555 0142", country: "Ireland", county: "County Kilkenny",
+        federation: "Motorsport Ireland", licenceNo: "MI-K-24817", licenceExpiry: "2027-12-31", category: "T4 Senior168", photos: true },
+  kart: { how: "own", chassis: "TK27-04512", engine: "T4-251-0937", year: "2026", from: "Bought second-hand", plate: true, status: "pending" },
+  reg: { ticket: "opt2", tee: "L", seat: "M", extra: { tee: 0, polo: 1, hoody: 1 }, toolkit: true, letter: false, terms: false, paid: false, number: null, pin: null },
+  approved: false, kitCollected: false, read: 0,
+});
+let S;
+try { S = JSON.parse(localStorage.getItem("tillotson-test") || "null") || START(); } catch { S = START(); }
+const save = () => { try { localStorage.setItem("tillotson-test", JSON.stringify(S)); } catch {} };
+
+/* ------------------------------------------------------------------ helpers */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const eur = (c) => new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" }).format(c / 100);
+const D = (s) => new Date(s + "T12:00:00Z");
+const mon = (s) => D(s).toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" });
+const range = (a, b) => a === b ? `${D(a).getUTCDate()} ${mon(a)}` : mon(a) === mon(b) ? `${D(a).getUTCDate()}–${D(b).getUTCDate()} ${mon(a)}` : `${D(a).getUTCDate()} ${mon(a)} – ${D(b).getUTCDate()} ${mon(b)}`;
+const wd = (s) => D(s).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
+const days = (a, b) => a === b ? wd(a) : `${wd(a)}–${wd(b)}`;
+const longDate = (s) => D(s).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const state = (e) => (e.e < S.today ? "done" : e.s <= S.today ? "live" : "soon");
+const onCal = (region) => CAL.filter((e) => e.r.includes("Global") || e.r.includes(region)).sort((a, b) => a.s.localeCompare(b.s) || a.t.localeCompare(b.t));
+const ageOn = (dob, on) => { const a = D(dob), b = D(on); let y = b.getUTCFullYear() - a.getUTCFullYear(); if (b.getUTCMonth() < a.getUTCMonth() || (b.getUTCMonth() === a.getUTCMonth() && b.getUTCDate() < a.getUTCDate())) y--; return y; };
+const fullName = () => `${S.me.first} ${S.me.last}`;
+const tid = "TID-IE-27-0418";
+
+const I = {
+  home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+  kart: '<circle cx="7" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M4 14h16l-2-5h-6l-2 3H6z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  bell: '<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  doc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',
+  wrench: '<path d="M14.5 6.5a4 4 0 0 0-5 5L4 17l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2-2z"/>',
+  back: '<path d="M15 5l-7 7 7 7"/>',
+};
+const ic = (n, sz = 22, sw = 2.2) => `<svg aria-hidden="true" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+
+/* sample licence, drawn on the page (clearly marked SAMPLE) */
+function licence(side) {
+  const front = side === "front";
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Sample licence ${side}">
+    <rect width="340" height="214" rx="14" fill="${front ? "#E8F1EA" : "#EEF0F3"}"/>
+    <rect width="340" height="40" fill="${front ? "#16794A" : "#5B6875"}"/>
+    <text x="16" y="26" fill="#fff" font-family="Barlow, sans-serif" font-weight="700" font-size="15">NATIONAL KARTING LICENCE · IRELAND</text>
+    ${front ? `<rect x="16" y="56" width="74" height="92" rx="6" fill="#B9C7BE"/><circle cx="53" cy="88" r="17" fill="#8FA295"/><path d="M27 140c4-18 48-18 52 0" fill="#8FA295"/>
+    <text x="106" y="72" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">NAME</text>
+    <text x="106" y="89" font-family="Barlow, sans-serif" font-weight="700" font-size="17" fill="#0D141B">MARK FFRENCH</text>
+    <text x="106" y="112" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">LICENCE NO.</text>
+    <text x="106" y="128" font-family="Barlow, sans-serif" font-weight="700" font-size="15" fill="#0D141B">MI-K-24817</text>
+    <text x="230" y="112" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">EXPIRES</text>
+    <text x="230" y="128" font-family="Barlow, sans-serif" font-weight="700" font-size="15" fill="#0D141B">31/12/2027</text>
+    <text x="106" y="150" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">GRADE</text>
+    <text x="106" y="166" font-family="Barlow, sans-serif" font-weight="700" font-size="15" fill="#0D141B">NATIONAL A · SENIOR</text>`
+    : `<text x="16" y="70" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">START PERMISSION</text>
+    <text x="16" y="88" font-family="Barlow, sans-serif" font-weight="700" font-size="14" fill="#0D141B">To be confirmed by event officials</text>
+    <rect x="16" y="104" width="308" height="1" fill="#C9D2DB"/>
+    <text x="16" y="126" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">MEDICAL</text>
+    <text x="16" y="143" font-family="Barlow, sans-serif" font-weight="700" font-size="14" fill="#0D141B">Valid to 31/12/2027</text>
+    <rect x="16" y="160" width="190" height="30" rx="4" fill="#fff" stroke="#C9D2DB"/>
+    <text x="24" y="180" font-family="Barlow, sans-serif" font-size="11" fill="#44515E">Signature of holder</text>`}
+    <text x="170" y="128" transform="rotate(-18 170 128)" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="54" fill="#B42318" fill-opacity=".22">SAMPLE</text>
+  </svg>`;
+}
+
+/* small location drawing in place of a live map (artifacts can't embed map sites) */
+function mapArt(v) {
+  return `<div class="mapcard"><svg viewBox="0 0 320 200" aria-hidden="true">
+    <rect width="320" height="200" fill="var(--sunk)"/>
+    <path d="M0 150 C80 120 120 170 200 140 S300 90 320 110" stroke="var(--line)" stroke-width="10" fill="none"/>
+    <path d="M60 0 C70 60 40 120 90 200" stroke="var(--line)" stroke-width="6" fill="none"/>
+    <path d="M128 70 h70 a22 22 0 0 1 0 44 h-30 a10 10 0 0 0 0 20 h20 a16 16 0 0 1 0 32 h-60 a22 22 0 0 1 0 -44 h10 a12 12 0 0 0 0 -24 h-10 a14 14 0 0 1 0 -28z" fill="none" stroke="var(--muted)" stroke-width="7" stroke-linejoin="round"/>
+    <g transform="translate(184 52)"><path d="M0 34s-15-13-15-24a15 15 0 0 1 30 0C15 21 0 34 0 34z" fill="var(--accent)"/><circle cy="10" r="5.5" fill="var(--surface)"/></g>
+  </svg><span class="coords">${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}${v.approx ? " · approximate" : ""}</span></div>`;
+}
+
+/* ------------------------------------------------------------------ pricing (same rules as src/lib/rules.ts) */
+function quote() {
+  const r = S.reg, t = EVENT.tickets[r.ticket], lines = [{ l: `${t.name} entry`, c: t.price }];
+  for (const c of EVENT.clothing) if (r.extra[c.id]) lines.push({ l: `${c.name} × ${r.extra[c.id]}`, c: c.price * r.extra[c.id] });
+  const sets = Math.min(r.extra.tee, r.extra.polo, r.extra.hoody);
+  if (sets) lines.push({ l: `T-shirt, polo and hoody bundle (20% off × ${sets})`, c: -Math.round(sets * (2500 + 3500 + 4500) * 0.2) });
+  if (r.toolkit) lines.push({ l: "Tillotson Toolkit rental (non-refundable)", c: EVENT.toolkit });
+  lines.push({ l: "Breakage deposit (refundable)", c: EVENT.deposit });
+  return { lines, total: lines.reduce((a, b) => a + b.c, 0) };
+}
+
+/* ------------------------------------------------------------------ screens */
+function header({ eyebrow, title, sub, back, steps }) {
+  return `<header class="top pad">
+    ${back ? `<button class="back" data-act="${back}">${ic("back", 18, 2.6)} Back</button>` : ""}
+    ${steps ? `<div class="steps" aria-label="Step ${steps[0]} of ${steps[1]}">${Array.from({ length: steps[1] }, (_, i) => `<i class="${i < steps[0] ? "on" : ""}"></i>`).join("")}</div>` : ""}
+    ${eyebrow ? `<div class="eyebrow">${eyebrow}</div>` : ""}
+    <h1>${title}</h1>${sub ? `<div class="sub">${sub}</div>` : ""}
+  </header>`;
+}
+const field = (id, label, value, opts = {}) => `<div class="field"><label for="${id}">${label}</label>
+  ${opts.options ? `<select id="${id}" data-bind="${opts.bind}">${opts.options.map((o) => `<option${o === value ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>`
+  : `<input id="${id}" data-bind="${opts.bind}" type="${opts.type || "text"}" value="${esc(value)}"${opts.mode ? ` inputmode="${opts.mode}"` : ""}${opts.auto ? ` autocomplete="${opts.auto}"` : ""}>`}
+  ${opts.hint ? `<span class="hint">${opts.hint}</span>` : ""}</div>`;
+
+const SCREENS = {
+  welcome: () => `
+    <header class="top pad" style="padding-block:40px 34px">
+      <div class="brandrow"><div class="mark">T</div><div class="eyebrow">Tillotson</div></div>
+      <h1 style="font-size:46px">One login for your kart, races and events</h1>
+      <div class="sub">Your Tillotson ID holds your licence, your kart and your entries, so you fill them in once.</div>
+    </header>
+    <main class="pad">
+      <div class="testnote">Test version. Everything is filled in as Mark Ffrench, a T4 Senior168 driver from Ireland. Nothing is saved anywhere or charged.</div>
+      <div class="card">
+        <h2>New here?</h2>
+        <p class="muted">Bought your kart from a dealer? They may have set up your Tillotson ID already. Check your email for an invite first.</p>
+        <button class="btn block" data-act="go:signup">Create my Tillotson ID</button>
+        <button class="btn block ghost" data-act="toast:In the live app this signs in with your email and password.">I already have one</button>
+      </div>
+    </main>`,
+
+  signup: () => `
+    ${header({ back: "go:welcome", steps: [1, 4], eyebrow: "Create Tillotson ID · step 1 of 4", title: "Your account" })}
+    <main class="pad">
+      <div class="card">
+        ${field("email", "Email", S.acct.email, { type: "email", bind: "acct.email", auto: "email" })}
+        ${field("pw", "Password", S.acct.password, { type: "password", bind: "acct.password", auto: "new-password", hint: "At least 10 characters." })}
+      </div>
+      <div class="card">
+        <div class="label">I am a</div>
+        <button class="choice on" type="button"><span class="tick">${ic("check", 16, 3)}</span><span class="body"><b>Driver</b><span class="muted small">I race, or I'm about to.</span></span></button>
+        <button class="choice" type="button" data-act="toast:Parent accounts manage a driver under 18. Not used in this test."><span class="tick"></span><span class="body"><b>Parent or guardian</b><span class="muted small">I manage a driver under 18.</span></span></button>
+        <p class="small muted">Dealer, importer and event staff accounts are set up by Tillotson.</p>
+      </div>
+      <button class="btn block" data-act="go:verify">Continue</button>
+    </main>`,
+
+  verify: () => `
+    ${header({ back: "go:signup", steps: [2, 4], eyebrow: "Create Tillotson ID · step 2 of 4", title: "Check your email", sub: `We sent a 6-digit code to ${esc(S.acct.email)}.` })}
+    <main class="pad">
+      <div class="card">
+        ${field("code", "Code", S.acct.code, { bind: "acct.code", mode: "numeric", auto: "one-time-code", hint: "Test code already filled in." })}
+      </div>
+      <button class="btn block" data-act="go:profile">Confirm email</button>
+    </main>`,
+
+  profile: () => {
+    const m = S.me;
+    return `
+    ${header({ back: "go:verify", steps: [3, 4], eyebrow: "Create Tillotson ID · step 3 of 4", title: "Driver and licence", sub: "Saved to your Tillotson ID and used for every event entry." })}
+    <main class="pad">
+      <div class="card">
+        <div class="two">${field("first", "First name", m.first, { bind: "me.first", auto: "given-name" })}${field("last", "Last name", m.last, { bind: "me.last", auto: "family-name" })}</div>
+        ${field("dob", "Date of birth", m.dob, { type: "date", bind: "me.dob", auto: "bday" })}
+        <div class="two">${field("country", "Country", m.country, { bind: "me.country", options: ["Ireland", "Northern Ireland", "United Kingdom", "Spain", "Italy"] })}${field("phone", "Mobile", m.phone, { type: "tel", bind: "me.phone", auto: "tel" })}</div>
+      </div>
+      <div class="card">
+        <h3>Racing</h3>
+        ${field("cat", "Category", m.category, { bind: "me.category", options: ["T4 Mini", "T4 Junior", "T4 Senior", "T4 Senior168"] })}
+        ${field("fed", "Licence issued by", m.federation, { bind: "me.federation", options: ["Motorsport Ireland", "Motorsport UK", "RFEDA", "ACI Sport", "Other"] })}
+        <div class="two">${field("lic", "Licence number", m.licenceNo, { bind: "me.licenceNo" })}${field("exp", "Expires", m.licenceExpiry, { type: "date", bind: "me.licenceExpiry" })}</div>
+        <div class="label">Licence photos</div>
+        <div class="docs">
+          <div class="doc"><div class="licence">${licence("front")}</div><span class="cap">${ic("check", 16, 3)} Front</span></div>
+          <div class="doc"><div class="licence">${licence("back")}</div><span class="cap">${ic("check", 16, 3)} Back</span></div>
+        </div>
+        <p class="small muted">Sample photos for the test.</p>
+      </div>
+      <button class="btn block" data-act="go:kart">Continue</button>
+    </main>`;
+  },
+
+  kart: () => {
+    const k = S.kart;
+    return `
+    ${header({ back: "go:profile", steps: [4, 4], eyebrow: "Create Tillotson ID · step 4 of 4", title: "Your T4 kart", sub: "Register it to your name for warranty and support." })}
+    <main class="pad">
+      <div class="card">
+        <div class="label">How did you get your kart?</div>
+        <button class="choice ${k.how === "dealer" ? "on" : ""}" data-act="kart:dealer"><span class="tick">${k.how === "dealer" ? ic("check", 16, 3) : ""}</span><span class="body"><b>A dealer registered it for me</b><span class="muted small">It will already be on your Tillotson ID.</span></span></button>
+        <button class="choice ${k.how === "own" ? "on" : ""}" data-act="kart:own"><span class="tick">${k.how === "own" ? ic("check", 16, 3) : ""}</span><span class="body"><b>I already own it</b><span class="muted small">Not registered by a dealer. Add it yourself and Tillotson confirms it.</span></span></button>
+      </div>
+      ${k.how === "dealer" ? `<div class="card"><p>Ask your dealer for the email they used. Your kart will appear here once you sign in with it.</p></div>` : `
+      <div class="card">
+        <div class="two">${field("ch", "Chassis number", k.chassis, { bind: "kart.chassis", hint: "On the chassis plate" })}${field("en", "Engine number", k.engine, { bind: "kart.engine", hint: "On the engine tag" })}</div>
+        <div class="two">${field("yr", "Year bought", k.year, { bind: "kart.year", mode: "numeric" })}${field("from", "Bought from", k.from, { bind: "kart.from", options: ["Bought second-hand", "A dealer (not registered)", "Tillotson directly"] })}</div>
+        <div class="label">Photo of the engine tag</div>
+        <div class="row"><span class="chip ok">${ic("check", 14, 3)} engine-tag.jpg</span><span class="small muted">Sample photo</span></div>
+      </div>`}
+      <button class="btn block" data-act="finish">Create my Tillotson ID</button>
+      <p class="small muted">By continuing you accept the Tillotson terms and privacy notice.</p>
+    </main>`;
+  },
+};
+
+/* ------------------------------------------------------------------ app (signed in) */
+function notices() {
+  const n = [];
+  if (S.reg.paid && S.approved) n.push(["ok", "check", "Approved to race", "Officials checked your licence for the T4 Nations Cup 2027."]);
+  if (S.reg.paid) n.push(["", "flag", `T4 Nations Cup 2027: race number ${S.reg.number}`, "Entry paid. Your PIN is in your email and on the event page."]);
+  if (S.kart.how === "own") n.push(S.kart.status === "confirmed" ? ["ok", "kart", "Kart confirmed", `Chassis ${S.kart.chassis} and engine ${S.kart.engine} are registered to you.`] : ["warn", "kart", "Kart registration received", "Tillotson will check your chassis and engine numbers, usually within 2 working days."]);
+  n.push(["", "cal", `Your calendar: ${CAL_TITLE[S.region] || S.region + " calendar"}`, "Plus the Tillotson T4 Global Events. Link a dealer to see their test days and club races too."]);
+  n.push(["", "bell", "Welcome to Tillotson", `Your Tillotson ID is ${tid}.`]);
+  return n;
+}
+function nextUp() {
+  const list = onCal(S.region);
+  return list.find((e) => state(e) !== "done");
+}
+
+function tabHome() {
+  const nx = nextUp();
+  return `
+    ${header({ eyebrow: `Tillotson ID · ${tid}`, title: `Hi ${esc(S.me.first)}`, sub: `${esc(S.me.category)} · ${esc(S.me.country)}` })}
+    <main class="pad">
+      <div class="idcard">
+        <div class="spread"><div><div class="lbl">Tillotson ID</div><div class="num">${tid}</div></div><div class="mark">T</div></div>
+        <div style="font:700 24px var(--f-display);text-transform:uppercase">${esc(fullName())}</div>
+        <div class="grid">
+          <div><span class="lbl">Role</span><b>Driver</b></div>
+          <div><span class="lbl">Category</span><b>${esc(S.me.category)}</b></div>
+          <div><span class="lbl">Calendar</span><b>${esc(S.region)}</b></div>
+        </div>
+      </div>
+      ${nx ? `<div class="card">
+        <div class="spread"><div class="label">${state(nx) === "live" ? "On now" : "Next up"}</div><span class="small muted">${range(nx.s, nx.e)}</span></div>
+        <h2>${esc(nx.t)}</h2>
+        <button class="venue" data-act="track:${nx.v}">${ic("pin", 18)} ${esc(VENUES[nx.v].name)}</button>
+        ${state(nx) === "live" && nx.live ? `<button class="btn live" data-act="toast:In the live app this opens the timing page the organiser added."><span class="dot"></span> Live timing</button>` : ""}
+        <button class="btn ghost small" data-act="tab:calendar">See the full calendar</button>
+      </div>` : ""}
+      <div class="card">
+        <h2>Bulletin board</h2>
+        <div>${notices().map(([c, i, t, s]) => `<div class="notice"><div class="ic ${c}">${ic(i, 20)}</div><div><b>${t}</b><small>${s}</small></div></div>`).join("")}</div>
+      </div>
+    </main>`;
+}
+
+function tabCalendar() {
+  const list = onCal(S.region);
+  const nx = list.find((e) => state(e) !== "done");
+  const finished = list.filter((e) => state(e) === "done").length;
+  const months = new Map();
+  for (const e of list) months.set(mon(e.s), [...(months.get(mon(e.s)) || []), e]);
+  const home = ["UK", "Northern Ireland"].includes(S.region) ? "United Kingdom" : S.region;
+  const title = (e) => e.t;
+  return `
+    ${header({ eyebrow: "Calendar", title: `${CAL_TITLE[S.region] || S.region + " calendar"} 2027`, sub: `${finished ? `${finished} of ${list.length} events finished` : `${list.length} events`} · tap a track for directions` })}
+    <main class="pad">
+      ${nx && finished ? `<button class="btn small" data-act="jump" style="align-self:flex-start">${state(nx) === "live" ? "On now" : "Next up"}: ${esc(nx.t)} ↓</button>` : ""}
+      ${[...months].map(([m, es]) => `<section class="month${es.every((e) => state(e) === "done") ? " past" : ""}"><h2>${m}</h2>
+        ${es.map((e) => {
+          const st = state(e), v = VENUES[e.v];
+          if (st === "done") return `<article class="entry finished">
+            <div class="when"><b>${range(e.s, e.e)}</b></div><h3>${esc(title(e))}</h3>
+            <button class="venue" data-act="track:${e.v}">${esc(v.name)}</button>
+            <div class="side">${e.results ? `<button class="btn small" data-act="toast:In the live app this opens the results page the organiser added.">Results</button>` : ""}${e.photos ? `<button class="btn small ghost" data-act="toast:In the live app this opens the photo album.">Photos</button>` : ""}${!e.results && !e.photos ? `<span class="chip">Finished</span>` : ""}</div>
+          </article>`;
+          const isNext = e === nx, global = e.r.includes("Global");
+          return `<article class="entry k-${e.k}${isNext ? " next" : ""}"${isNext ? ' id="next"' : ""}>
+            ${isNext ? `<div class="flag">${st === "live" ? "On now" : "Next up"}</div>` : ""}
+            <div class="when"><b>${range(e.s, e.e)}</b><span>${days(e.s, e.e)}</span></div>
+            <div class="kicker">${global ? "Tillotson T4 Global Events" : KIND[e.k]}</div>
+            <h3>${esc(title(e))}</h3>
+            <button class="venue" data-act="track:${e.v}">${ic("pin", 18)} ${esc(v.name)}${v.country !== home && v.country !== S.region ? `, ${esc(v.country)}` : ""}</button>
+            ${st === "live" && e.live ? `<button class="btn live small" style="align-self:flex-start" data-act="toast:In the live app this opens the timing page the organiser added."><span class="dot"></span> Live timing</button>` : ""}
+            ${e.d ? `<p>${esc(e.d)}</p>` : ""}
+            ${e.event ? `<button class="btn small" style="align-self:flex-start" data-act="tab:events">${S.reg.paid ? "My entry" : "Enter this event"}</button>` : ""}
+            <div class="tags">${(e.tags || []).map((t) => `<span class="chip hot">${esc(t)}</span>`).join("")}${global ? `<span class="chip blue">On every country's calendar</span>` : ""}${!global && e.r.length > 1 ? `<span class="chip blue">Also on ${e.r.filter((r) => r !== S.region).map((r) => CAL_TITLE[r] || r).join(" & ")} calendars</span>` : ""}</div>
+          </article>`;
+        }).join("")}</section>`).join("")}
+    </main>`;
+}
+
+function trackView(slug) {
+  const v = VENUES[slug];
+  const upcoming = CAL.filter((e) => e.v === slug && e.e >= S.today).sort((a, b) => a.s.localeCompare(b.s));
+  const dir = `https://www.google.com/maps/dir/?api=1&destination=${v.lat},${v.lng}`;
+  const sat = `https://www.google.com/maps/@${v.lat},${v.lng},500m/data=!3m1!1e3`;
+  const osm = `https://www.openstreetmap.org/?mlat=${v.lat}&mlon=${v.lng}#map=16/${v.lat}/${v.lng}`;
+  return `
+    ${header({ back: "close", eyebrow: "Track", title: esc(v.name), sub: v.full !== v.name ? esc(v.full) : "" })}
+    <main class="pad">
+      ${mapArt(v)}
+      ${v.approx ? `<p class="small muted">The pin is near the track, not on it. Check the entrance on arrival.</p>` : ""}
+      <div class="card">
+        <div class="label">Address</div><p>${esc(v.address)}<br>${esc(v.country)}</p>
+        <div class="two"><a class="btn" href="${dir}" target="_blank" rel="noopener">Directions</a><a class="btn ghost" href="${sat}" target="_blank" rel="noopener">Satellite view</a></div>
+        <a class="small" href="${osm}" target="_blank" rel="noopener">Open the track map on OpenStreetMap</a>
+      </div>
+      <div class="card"><h2>Coming up here</h2>
+        ${upcoming.length ? `<div class="list">${upcoming.map((e) => `<div class="li"><b>${range(e.s, e.e)}</b><span class="small" style="text-align:right">${esc(e.t)}</span></div>`).join("")}</div>` : `<p class="muted">Nothing else on the calendar here this year.</p>`}
+      </div>
+      <p class="small muted">Map data © OpenStreetMap contributors.</p>
+    </main>`;
+}
+
+function tabEvents() {
+  if (S.reg.paid) return eventDashboard();
+  const eventLive = S.today >= EVENT.s && S.today <= EVENT.e, over = S.today > EVENT.e;
+  return `
+    ${header({ eyebrow: "Events", title: "Entries", sub: "Events you can enter with your Tillotson ID." })}
+    <main class="pad">
+      <div class="card">
+        <div class="kicker label">Tillotson T4 Global Events</div>
+        <h2>${EVENT.name}</h2>
+        <button class="venue" data-act="track:lonato">${ic("pin", 18)} South Garda Karting, Lonato, Italy</button>
+        <p class="muted">${range(EVENT.s, EVENT.e)} 2027 · ${days(EVENT.s, EVENT.e)}</p>
+        ${over ? `<span class="chip">Finished</span>` : eventLive ? `<span class="chip hot">On now · entries closed</span>` : `
+        <span class="chip warn">Registration opens ${EVENT.opens}</span>
+        <p class="testnote">Open now for this test.</p>
+        <button class="btn block" data-act="reg:start">Enter as ${esc(fullName())}</button>`}
+      </div>
+      <div class="card"><h3>T4 Series Ireland</h3><p class="muted small">Club rounds are entered through the clubs for now. They're on your calendar with directions to each track.</p><button class="btn ghost small" data-act="tab:calendar" style="align-self:flex-start">Open calendar</button></div>
+    </main>`;
+}
+
+const REG_STEPS = ["Driver", "Licence", "Entry", "Clothing", "Pay"];
+function regView() {
+  const step = S.regStep, r = S.reg, m = S.me, age = ageOn(m.dob, EVENT.s);
+  const head = header({ back: step ? "reg:back" : "close", steps: [step + 1, REG_STEPS.length], eyebrow: `${EVENT.name} · step ${step + 1} of ${REG_STEPS.length}`, title: REG_STEPS[step] });
+  let body = "";
+  if (step === 0) body = `
+    <div class="status ok"><div class="big">${ic("check", 24, 3)}</div><div><b>Filled in from your Tillotson ID</b><small>Change anything here and it updates your ID too.</small></div></div>
+    <div class="card"><dl class="kv">
+      <dt>Driver</dt><dd>${esc(fullName())}</dd>
+      <dt>Born</dt><dd>${longDate(m.dob)} · ${age} on the event date</dd>
+      <dt>Category</dt><dd>${esc(m.category)}</dd>
+      <dt>Country</dt><dd>${esc(m.country)}</dd>
+      <dt>Email</dt><dd>${esc(S.acct.email)}</dd>
+      <dt>Mobile</dt><dd>${esc(m.phone)}</dd>
+    </dl></div>
+    ${age >= 18 ? `<p class="small muted">${esc(m.first)} is over 18, so no parent, guardian or entrant licence is needed.</p>` : ""}`;
+  if (step === 1) body = `
+    <div class="card">
+      <div class="spread"><h3>Licence</h3><span class="chip ok">From your ID</span></div>
+      <p class="small">${esc(m.federation)} · ${esc(m.licenceNo)} · expires ${longDate(m.licenceExpiry)}</p>
+      <div class="docs"><div class="doc"><div class="licence">${licence("front")}</div><span class="cap">${ic("check", 16, 3)} Front</span></div><div class="doc"><div class="licence">${licence("back")}</div><span class="cap">${ic("check", 16, 3)} Back</span></div></div>
+    </div>
+    <div class="card">
+      <h3>Start permission</h3>
+      <p class="small">This event is hosted in ${EVENT.host}. Officials will check your licence for start permission before the event.</p>
+      <p class="small muted">If it isn't printed on your licence, upload a start permission letter from ${esc(m.federation)}. Optional now, but you'll be asked for it if officials can't find it.</p>
+      <button class="btn small ghost" data-act="reg:letter" style="align-self:flex-start">${r.letter ? `${ic("check", 16, 3)} start-permission-letter.pdf` : "Upload a letter"}</button>
+    </div>`;
+  if (step === 2) body = `
+    ${["opt1", "opt2"].map((k) => { const t = EVENT.tickets[k]; return `<button class="choice ${r.ticket === k ? "on" : ""}" data-act="reg:ticket:${k}"><span class="tick">${r.ticket === k ? ic("check", 16, 3) : ""}</span><span class="body"><span class="spread"><b>${t.name}</b><span class="money">${eur(t.price)}</span></span><span class="small muted">${t.inc.join(" · ")}</span>${t.note ? `<span class="small"><b style="font-size:14px">${t.note}</b></span>` : ""}</span></button>`; }).join("")}
+    ${r.ticket === "opt2" ? `<p class="small muted">Suggested because ${esc(m.first)} owns a T4 kart (${esc(S.kart.chassis)}).</p>` : ""}
+    <div class="card">
+      ${field("tee", "Event T-shirt size (included)", r.tee, { bind: "reg.tee", options: EVENT.tees })}
+      ${r.ticket === "opt1" ? field("seat", "Seat size", r.seat, { bind: "reg.seat", options: EVENT.seats, hint: "If the seat size is wrong, there's a fee to change it." }) : ""}
+    </div>
+    <button class="choice ${r.toolkit ? "on" : ""}" data-act="reg:toolkit"><span class="tick">${r.toolkit ? ic("check", 16, 3) : ""}</span><span class="body"><span class="spread"><b>Rent a Tillotson Toolkit</b><span class="money">${eur(EVENT.toolkit)}</span></span><span class="small muted">Everything needed to work on a T4 kart, in a Senzo toolbox. Non-refundable.</span></span></button>`;
+  if (step === 3) {
+    const sets = Math.min(r.extra.tee, r.extra.polo, r.extra.hoody);
+    body = `<div class="card">
+      ${EVENT.clothing.map((c) => `<div class="spread"><div><b>${c.name}</b><div class="small muted">${eur(c.price)} each</div></div><div class="qty"><button aria-label="One fewer ${c.name}" data-act="reg:qty:${c.id}:-1">−</button><span>${r.extra[c.id]}</span><button aria-label="One more ${c.name}" data-act="reg:qty:${c.id}:1">+</button></div></div>`).join("")}
+    </div>
+    <div class="status ${sets ? "ok" : "warn"}"><div class="big">${ic(sets ? "check" : "bell", 22, 2.6)}</div><div><b>${sets ? `Bundle applied: 20% off ${sets === 1 ? "the set" : sets + " sets"}` : "20% off when you add a T-shirt, polo and hoody"}</b><small>${sets ? `You save ${eur(Math.round(sets * 10500 * 0.2))}.` : "Add one of each to get the bundle price."}</small></div></div>`;
+  }
+  if (step === 4) {
+    const q = quote();
+    body = `<div class="card">
+      <div class="list">${q.lines.map((l) => `<div class="li"><span class="small">${esc(l.l)}</span><span class="money">${eur(l.c)}</span></div>`).join("")}</div>
+      <div class="spread"><b>Total</b><span class="total">${eur(q.total)}</span></div>
+    </div>
+    <div class="card small"><p>Mandatory breakage deposit. Covers smaller kart damage and rental items at the event. Refunded in varying amounts depending on the kart's condition and the return of all rented items. Non-refundable if the driver does not attend.</p>
+      <button class="choice ${r.terms ? "on" : ""}" data-act="reg:terms"><span class="tick">${r.terms ? ic("check", 16, 3) : ""}</span><span class="body"><b style="font-size:15px">I accept the event terms and the FIA safety equipment rules</b></span></button></div>
+    <p class="testnote">Test payment. No card is charged.</p>`;
+  }
+  const next = step < 4 ? `<button class="btn block" data-act="reg:next">Continue</button>` : `<button class="btn block" data-act="reg:pay"${r.terms ? "" : " disabled"}>Pay ${eur(quote().total)}</button>`;
+  return `${head}<main class="pad">${body}${next}</main>`;
+}
+
+function eventDashboard() {
+  const r = S.reg, t = EVENT.tickets[r.ticket], live = S.today >= EVENT.s && S.today <= EVENT.e, over = S.today > EVENT.e;
+  const kit = [...t.inc.filter((x) => !["Fuel", "Entry fees"].includes(x)).map((x) => x === "1 event T-shirt" ? `Event T-shirt (${r.tee})` : x)];
+  for (const c of EVENT.clothing) if (r.extra[c.id]) kit.push(`${c.name} × ${r.extra[c.id]}`);
+  if (r.toolkit) kit.push("Tillotson Toolkit (return after the event)");
+  return `
+    ${header({ eyebrow: "My entry", title: EVENT.name, sub: `South Garda Karting, Lonato · ${range(EVENT.s, EVENT.e)}` })}
+    <main class="pad">
+      <div class="card"><div class="spread"><div><div class="label">Race number</div><div class="racenum">${r.number}</div></div><div style="text-align:right"><div class="label">PIN</div><div class="pin">${r.pin}</div></div></div>
+        <p class="small muted">${esc(fullName())} · ${esc(S.me.category)} · ${t.name}. Sign in at the event with your race number and PIN.</p></div>
+      ${S.approved ? `<div class="status ok"><div class="big">${ic("check", 24, 3)}</div><div><b>Approved to race</b><small>Officials checked your licence and start permission.</small></div></div>`
+        : `<div class="status warn"><div class="big">${ic("clock", 24, 2.6)}</div><div><b>Documents waiting for officials</b><small>Officials check licences before the event. You'll get a notification when you're approved.</small></div></div>`}
+      <div class="card"><div class="label">Event sign-on</div>
+        <h3>${S.approved ? "T4 Senior168 fast-track" : "Documents in progress"}</h3>
+        <p>${S.approved ? EVENT.slots["T4 Senior168"] : EVENT.slots.progress}</p>
+        <p class="small muted">${S.approved ? "You're pre-approved, so sign-on is quick." : "Not approved yet, so come to the documents slot first. If you're approved before the event, this changes to your category's fast-track time."}</p></div>
+      <div class="card"><div class="spread"><h3>My kit</h3>${S.kitCollected ? `<span class="chip ok">Collected</span>` : `<span class="chip warn">To collect</span>`}</div>
+        <div class="list">${kit.map((k) => `<div class="li"><span>${esc(k)}</span>${S.kitCollected ? `<span class="chip ok">${ic("check", 14, 3)}</span>` : `<span class="chip">Due</span>`}</div>`).join("")}</div>
+        ${r.ticket === "opt2" ? `<p class="small muted">Option 2: bring your own kart and trolley.</p>` : ""}</div>
+      ${live ? `<button class="btn live block" data-act="toast:In the live app this opens the timing page the organiser added."><span class="dot"></span> Live timing</button>` : ""}
+      ${over ? `<button class="btn block" data-act="toast:In the live app this opens the results page the organiser added.">Results</button>` : ""}
+      <div class="card"><div class="label">Paid</div>
+        <div class="list">${quote().lines.map((l) => `<div class="li"><span class="small">${esc(l.l)}</span><span class="money">${eur(l.c)}</span></div>`).join("")}</div>
+        <div class="spread"><b>Total paid</b><span class="money">${eur(quote().total)}</span></div></div>
+      <button class="venue" data-act="track:lonato">${ic("pin", 18)} Directions to South Garda Karting</button>
+    </main>`;
+}
+
+function tabKart() {
+  const k = S.kart;
+  if (k.how !== "own") return `${header({ eyebrow: "My kart", title: "No kart yet" })}<main class="pad"><div class="card"><p>Karts registered by your dealer appear here.</p><button class="btn" data-act="kart:own2">Add a kart I own</button></div></main>`;
+  const ok = k.status === "confirmed";
+  return `
+    ${header({ eyebrow: "My kart", title: "Tillotson T4", sub: `Registered to ${esc(fullName())}` })}
+    <main class="pad">
+      ${ok ? `<div class="status ok"><div class="big">${ic("check", 24, 3)}</div><div><b>Confirmed by Tillotson</b><small>Your kart is registered to you for warranty and support.</small></div></div>`
+        : `<div class="status warn"><div class="big">${ic("clock", 24, 2.6)}</div><div><b>Waiting for Tillotson</b><small>We're checking the chassis and engine numbers, usually within 2 working days.</small></div></div>`}
+      <div class="card"><dl class="kv">
+        <dt>Chassis</dt><dd>${esc(k.chassis)}</dd><dt>Engine</dt><dd>${esc(k.engine)}</dd>
+        <dt>Bought</dt><dd>${esc(k.year)} · ${esc(k.from)}</dd><dt>Dealer</dt><dd>None linked</dd>
+      </dl></div>
+      <div class="card"><h3>Your dealer</h3><p class="small muted">${esc(S.me.first)} didn't buy from a dealer, so none is linked. Link one to get their test days and club races on your calendar and bulletin board.</p>
+        <button class="btn ghost small" style="align-self:flex-start" data-act="toast:Dealers in Ireland will be listed here once they join the Tillotson app.">Link a dealer</button></div>
+    </main>`;
+}
+
+function tabProfile() {
+  const m = S.me;
+  return `
+    ${header({ eyebrow: `Tillotson ID · ${tid}`, title: esc(fullName()), sub: esc(S.acct.email) })}
+    <main class="pad">
+      <div class="card"><h3>Calendar and events</h3>
+        ${field("region", "My calendar", S.region, { bind: "region", options: ["Ireland", "Northern Ireland", "UK"], hint: "Your calendar shows this country's T4 events plus the Tillotson T4 Global Events." })}
+      </div>
+      <div class="card"><h3>Driver</h3><dl class="kv">
+        <dt>Born</dt><dd>${longDate(m.dob)}</dd><dt>Country</dt><dd>${esc(m.country)}</dd><dt>Mobile</dt><dd>${esc(m.phone)}</dd><dt>Category</dt><dd>${esc(m.category)}</dd>
+      </dl></div>
+      <div class="card"><h3>Licence</h3><dl class="kv">
+        <dt>Issued by</dt><dd>${esc(m.federation)}</dd><dt>Number</dt><dd>${esc(m.licenceNo)}</dd><dt>Expires</dt><dd>${longDate(m.licenceExpiry)}</dd>
+      </dl><div class="docs"><div class="licence">${licence("front")}</div><div class="licence">${licence("back")}</div></div></div>
+      <div class="card"><h3>Roles</h3><div class="row"><span class="chip blue">Driver</span></div><p class="small muted">Dealer, importer, event staff and admin roles are added by Tillotson. The same Tillotson ID then shows those screens too.</p></div>
+    </main>`;
+}
+
+/* ------------------------------------------------------------------ test controls */
+function testSheet() {
+  return `<div class="scrim" data-act="sheet:close"><div class="sheet pad" role="dialog" aria-label="Test controls" data-stop>
+    <div class="spread"><h2>Test controls</h2><button class="btn small ghost" data-act="sheet:close">Done</button></div>
+    <p class="small muted">Not part of the app. These stand in for what officials, Tillotson and the calendar do over the season.</p>
+    <div class="label">Pretend today is</div>
+    <div class="datechips">${DATES.map(([d, l, s]) => `<button class="choice ${S.today === d ? "on" : ""}" data-act="date:${d}"><span class="tick">${S.today === d ? ic("check", 16, 3) : ""}</span><span class="body"><b>${l}</b><span class="small muted">${s}</span></span></button>`).join("")}</div>
+    <div class="label">Others' actions</div>
+    <button class="choice ${S.kart.status === "confirmed" ? "on" : ""}" data-act="t:kart"><span class="tick">${S.kart.status === "confirmed" ? ic("check", 16, 3) : ""}</span><span class="body"><b>Tillotson confirms the kart</b></span></button>
+    <button class="choice ${S.approved ? "on" : ""}" data-act="t:approve"${S.reg.paid ? "" : " disabled"}><span class="tick">${S.approved ? ic("check", 16, 3) : ""}</span><span class="body"><b>Official approves documents</b>${S.reg.paid ? "" : `<span class="small muted">Enter the T4 Nations Cup 2027 first</span>`}</span></button>
+    <button class="choice ${S.kitCollected ? "on" : ""}" data-act="t:kit"${S.reg.paid ? "" : " disabled"}><span class="tick">${S.kitCollected ? ic("check", 16, 3) : ""}</span><span class="body"><b>Staff hand out the kit</b></span></button>
+    <button class="btn ghost block" data-act="t:reset">Start the test again</button>
+  </div></div>`;
+}
+
+/* ------------------------------------------------------------------ render */
+function render() {
+  const app = $("#app");
+  if (S.stage !== "app") { app.innerHTML = SCREENS[S.stage](); $("#layer").innerHTML = ""; window.scrollTo(0, 0); return; }
+  let html;
+  if (S.view?.type === "track") html = trackView(S.view.slug);
+  else if (S.view?.type === "reg") html = regView();
+  else html = { home: tabHome, calendar: tabCalendar, events: tabEvents, kart: tabKart, profile: tabProfile }[S.tab]();
+  const tabs = [["home", "Home", "home"], ["calendar", "Calendar", "cal"], ["events", "Events", "flag"], ["kart", "My kart", "kart"], ["profile", "Profile", "user"]];
+  app.innerHTML = html + `<div class="tabs"><nav aria-label="Main">${tabs.map(([k, l, i]) => `<button class="${S.tab === k && !S.view ? "on" : ""}" data-act="tab:${k}"${S.tab === k && !S.view ? ' aria-current="page"' : ""}>${ic(i, 24)}${l}${k === "home" && S.read < notices().length ? `<span class="badge">${notices().length - S.read}</span>` : ""}</button>`).join("")}</nav></div>
+    <button class="testbtn" data-act="sheet:open">${ic("wrench", 18)} Test controls</button>`;
+}
+function draw(scroll = "top") {
+  if (S.stage === "app" && S.tab === "home" && !S.view) S.read = notices().length;
+  save(); render();
+  if (scroll === "top") window.scrollTo(0, 0);
+  if (scroll === "next") { const n = document.getElementById("next"); if (n) n.scrollIntoView({ block: "start" }); else window.scrollTo(0, 0); }
+}
+
+document.addEventListener("input", (ev) => {
+  const b = ev.target.dataset?.bind; if (!b) return;
+  const path = b.split("."); let o = S; while (path.length > 1) o = o[path.shift()]; o[path[0]] = ev.target.value; save();
+  if (b === "region") { render(); }
+});
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("[data-act]"); if (!el || el.disabled) return;
+  if (el.classList.contains("scrim") && ev.target.closest("[data-stop]")) return;
+  const [a, ...rest] = el.dataset.act.split(":"); const arg = rest.join(":");
+  switch (a) {
+    case "go": S.stage = arg; draw(); break;
+    case "toast": toast(arg); break;
+    case "kart": S.kart.how = arg; draw("none"); break;
+    case "finish": S.stage = "app"; S.tab = "home"; S.view = null; draw(); toast("Tillotson ID created"); break;
+    case "tab": S.tab = arg; S.view = null; draw(arg === "calendar" ? "next" : "top"); break;
+    case "track": S.view = { type: "track", slug: arg }; draw(); break;
+    case "close": S.view = null; draw(S.tab === "calendar" ? "next" : "top"); break;
+    case "jump": document.getElementById("next")?.scrollIntoView({ block: "start", behavior: "smooth" }); break;
+    case "reg": {
+      const [sub, x, y] = arg.split(":");
+      if (sub === "start") { S.view = { type: "reg" }; S.regStep = 0; S.reg.ticket = "opt2"; }
+      if (sub === "back") S.regStep = Math.max(0, S.regStep - 1);
+      if (sub === "next") S.regStep = Math.min(4, S.regStep + 1);
+      if (sub === "letter") { S.reg.letter = !S.reg.letter; draw("none"); return; }
+      if (sub === "ticket") { S.reg.ticket = x; draw("none"); return; }
+      if (sub === "toolkit") { S.reg.toolkit = !S.reg.toolkit; draw("none"); return; }
+      if (sub === "terms") { S.reg.terms = !S.reg.terms; draw("none"); return; }
+      if (sub === "qty") { S.reg.extra[x] = Math.max(0, Math.min(10, S.reg.extra[x] + Number(y))); draw("none"); return; }
+      if (sub === "pay") {
+        // T4 Senior168 numbers start at 510, in order of payment; Mark is the first to pay in this test.
+        S.reg.paid = true; S.reg.number = 510; S.reg.pin = String(100000 + Math.floor(Math.random() * 900000));
+        S.view = null; S.tab = "events"; draw(); toast(`Paid. Race number ${S.reg.number}. PIN sent to ${S.acct.email}`); return;
+      }
+      draw(); break;
+    }
+    case "sheet": if (arg === "open") $("#layer").innerHTML = testSheet(); else $("#layer").innerHTML = ""; break;
+    case "date": S.today = arg; $("#layer").innerHTML = testSheet(); draw(S.tab === "calendar" && !S.view ? "next" : "none"); break;
+    case "t": {
+      if (arg === "kart") S.kart.status = S.kart.status === "confirmed" ? "pending" : "confirmed";
+      if (arg === "approve") S.approved = !S.approved;
+      if (arg === "kit") S.kitCollected = !S.kitCollected;
+      if (arg === "reset") { S = START(); $("#layer").innerHTML = ""; draw(); return; }
+      $("#layer").innerHTML = testSheet(); draw("none"); break;
+    }
+  }
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("#layer").innerHTML = ""; });
+render();
+</script>
