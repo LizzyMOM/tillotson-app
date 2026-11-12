@@ -1,0 +1,126 @@
+/* Order Angel. Same look as the rest of the Tillotson app (navy band, Barlow), wider on desktop for staff.
+   Each stage has a calm colour; red is kept for the overdue flag only, so red always means "look at this now". */
+.oa {
+  --st-submitted: #2F6FDE; --st-verified: #7A4BD0; --st-in_progress: #B86E00; --st-shipped: #1E8E4E; --st-received: #6B7785; --st-cancelled: #8C96A1;
+  --flag: #C62A1F; --flag-soft: #FDE4E1;
+}
+@media (prefers-color-scheme: dark) {
+  .oa { --st-submitted: #6EA2FF; --st-verified: #B08CFF; --st-in_progress: #F2B357; --st-shipped: #5FD08F; --st-received: #A3AFBB; --st-cancelled: #7D8894; --flag: #FF8A80; --flag-soft: #43201D }
+}
+.oa.shell { max-width: 1040px }
+.oa .top { display: flex; flex-direction: column; gap: 4px }
+.oa .topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
+.oa .who { font: 600 14px var(--f-body); opacity: .85; display: flex; gap: 12px; align-items: center; flex-wrap: wrap }
+.oa .who a, .oa .who button { color: inherit; font: 700 14px var(--f-body); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px }
+.oa .bell { position: relative; text-decoration: none !important }
+.oa .bell b { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--flag); color: #fff; font: 700 12px var(--f-body); margin-left: 4px }
+.oa a { color: var(--accent-text) }
+.oa .top a { color: inherit }
+
+.oa .tabs { display: flex; gap: 6px; flex-wrap: wrap }
+.oa .tabs a { min-height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--surface); font: 700 14px var(--f-body); color: var(--ink); text-decoration: none }
+.oa .tabs a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--surface) }
+.oa .tabs a i { width: 10px; height: 10px; border-radius: 50%; flex: none }
+.oa .tabs a small { font: 700 12px var(--f-body); opacity: .7 }
+.oa .tabs a.flagtab { border-color: color-mix(in srgb, var(--flag) 50%, var(--line)); color: var(--flag) }
+.oa .tabs a.flagtab[aria-current="page"] { background: var(--flag); border-color: var(--flag); color: #fff }
+.oa .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between }
+.oa .search { display: flex; gap: 6px; flex: none; width: 100%; max-width: 480px }
+.oa .search input { flex: 1; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); padding: 8px 12px; font: 600 16px var(--f-body) }
+
+.oa .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-ink); font: 700 15px var(--f-body); cursor: pointer; text-decoration: none; white-space: nowrap }
+.oa .btn.ghost { background: var(--surface); color: var(--accent-text); border: 1.5px solid var(--line) }
+.oa .btn.ok { background: var(--ok); color: #fff }
+.oa .btn.warn { background: var(--surface); color: var(--danger); border: 1.5px solid color-mix(in srgb, var(--danger) 45%, var(--line)) }
+.oa .btn.big { min-height: 52px; font-size: 17px; padding: 10px 22px }
+@media (prefers-color-scheme: dark) { .oa .btn.ok { color: #0B1016 } }
+
+/* order list */
+.oa .list { display: flex; flex-direction: column; gap: 8px }
+.oa .card { display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); overflow: hidden; color: var(--ink); text-decoration: none }
+.oa .card:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)) }
+.oa .card.flagged { border-color: var(--flag) }
+.oa .card > i { background: var(--c) }
+.oa .card .main { padding: 11px 13px; display: flex; flex-direction: column; gap: 3px; min-width: 0 }
+.oa .card .l1 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap }
+.oa .card .l1 b { font: 700 19px var(--f-display); letter-spacing: .01em }
+.oa .card .l1 span { font: 700 15px var(--f-body) }
+.oa .card .l2 { font: 500 14px var(--f-body); color: var(--muted) }
+.oa .card .side { padding: 11px 13px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right }
+.oa .card .side .amt { font: 700 15px var(--f-body) }
+.oa .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px }
+.oa .badge { font: 700 12px var(--f-body); padding: 3px 8px; border-radius: 99px; background: var(--sunk); color: var(--muted) }
+.oa .badge.flag { background: var(--flag-soft); color: var(--flag) }
+.oa .badge.wait { background: var(--warn-soft); color: var(--warn) }
+.oa .badge.ok { background: var(--ok-soft); color: var(--ok) }
+.oa .pill { display: inline-flex; align-items: center; gap: 6px; font: 700 13px var(--f-body); text-transform: uppercase; letter-spacing: .04em; padding: 4px 10px; border-radius: 99px; color: var(--c); background: color-mix(in srgb, var(--c) 13%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 40%, transparent); white-space: nowrap }
+.oa .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c) }
+.oa .empty { text-align: center; padding: 40px 16px; color: var(--muted); background: var(--surface); border: 1.5px dashed var(--line); border-radius: var(--r) }
+@media (max-width: 560px) {
+  .oa .card { grid-template-columns: 6px minmax(0, 1fr) }
+  .oa .card .side { grid-column: 2; flex-direction: row; justify-content: space-between; align-items: center; padding-top: 0; text-align: left }
+}
+
+/* order page */
+.oa .detail { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start }
+.oa .detail > div { display: flex; flex-direction: column; gap: 14px; min-width: 0 }
+@media (max-width: 860px) { .oa .detail { grid-template-columns: 1fr } }
+.oa .track { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px }
+.oa .track div { display: flex; flex-direction: column; gap: 6px; font: 700 12px var(--f-body); text-transform: uppercase; letter-spacing: .04em; color: var(--muted) }
+.oa .track div::before { content: ""; height: 6px; border-radius: 3px; background: var(--sunk) }
+.oa .track .done::before { background: var(--c) }
+.oa .track .now { color: var(--c) }
+.oa .track .now::before { background: var(--c) }
+.oa .track small { font: 500 12px var(--f-body); text-transform: none; letter-spacing: 0 }
+.oa .flagbar { background: var(--flag-soft); color: var(--flag); border: 1.5px solid color-mix(in srgb, var(--flag) 40%, transparent); border-radius: 10px; padding: 10px 13px; font: 700 15px var(--f-body) }
+.oa .note { border-radius: 10px; padding: 10px 13px; font: 600 15px/1.4 var(--f-body) }
+.oa .note.ok { background: var(--ok-soft); color: var(--ok) }
+.oa .note.err { background: var(--danger-soft); color: var(--danger) }
+.oa .note.wait { background: var(--warn-soft); color: var(--warn) }
+.oa table { width: 100%; border-collapse: collapse; font: 500 15px var(--f-body) }
+.oa th { text-align: left; font: 700 12px var(--f-body); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 6px 8px; border-bottom: 1.5px solid var(--line) }
+.oa td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top }
+.oa td.n, .oa th.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums }
+.oa td .sku { display: block; font: 600 13px var(--f-body); color: var(--muted) }
+.oa tfoot td { border: 0; font-weight: 700 }
+.oa tr.removed td { text-decoration: line-through; color: var(--muted) }
+.oa tr.added td:first-child, .oa tr.changed td:first-child { box-shadow: inset 4px 0 0 var(--accent) }
+.oa .was { display: block; font: 600 12px var(--f-body); color: var(--muted); text-decoration: line-through }
+.oa .tablewrap { overflow-x: auto; margin: 0 -4px }
+.oa .edit input { width: 100%; min-height: 40px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); padding: 6px 9px; font: 600 15px var(--f-body) }
+.oa .edit input.q { width: 74px; text-align: right }
+.oa .edit input.p { width: 100px; text-align: right }
+.oa form { display: flex; flex-direction: column; gap: 10px; margin: 0 }
+.oa form.inline { flex-direction: row; flex-wrap: wrap; align-items: center }
+.oa form.search { flex-direction: row; gap: 6px }
+.oa .fld textarea { min-height: 84px; resize: vertical }
+.oa .fld input[type="date"] { min-height: 48px }
+.oa details { border-top: 1px solid var(--line); padding-top: 10px }
+.oa details > summary { cursor: pointer; font: 700 15px var(--f-body); color: var(--accent-text); list-style: none; min-height: 32px; display: flex; align-items: center }
+.oa details > summary::-webkit-details-marker { display: none }
+.oa details > summary::before { content: "+"; display: inline-block; width: 18px; font-weight: 800 }
+.oa details[open] > summary::before { content: "−" }
+.oa details[open] > summary { margin-bottom: 8px }
+.oa .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font: 500 15px var(--f-body); margin: 0 }
+.oa .kv dt { color: var(--muted); font-weight: 600 }
+.oa .kv dd { margin: 0; overflow-wrap: anywhere }
+.oa .thread { display: flex; flex-direction: column; gap: 8px }
+.oa .msg { padding: 9px 12px; border-radius: 10px; background: var(--sunk); font: 500 15px/1.45 var(--f-body); white-space: pre-wrap; overflow-wrap: anywhere }
+.oa .msg.mine { background: color-mix(in srgb, var(--accent) 12%, var(--surface)) }
+.oa .msg.internal { background: var(--warn-soft) }
+.oa .msg .by { display: block; font: 700 12px var(--f-body); color: var(--muted); margin-bottom: 2px; white-space: normal }
+.oa .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font: 500 14px var(--f-body) }
+.oa .log time { color: var(--muted); font-weight: 600; margin-right: 6px }
+.oa .ship { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font: 500 15px var(--f-body) }
+.oa .ship b { font-weight: 700 }
+.oa .radio { display: flex; flex-direction: column; gap: 6px }
+.oa .radio label { display: flex; gap: 10px; align-items: center; min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); font: 700 15px var(--f-body); cursor: pointer }
+.oa .radio label:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)) }
+.oa .radio input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0 }
+.oa .notif { display: block; padding: 11px 13px; border-radius: 10px; background: var(--surface); border: 1.5px solid var(--line); color: var(--ink); text-decoration: none }
+.oa .notif.unread { border-color: var(--accent) }
+.oa .notif b { display: block; font: 700 15px var(--f-body) }
+.oa .notif span { display: block; font: 500 14px/1.4 var(--f-body); color: var(--muted); white-space: pre-wrap }
+.oa .notif time { font: 600 12px var(--f-body); color: var(--muted) }
+.oa .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.oa .muted { color: var(--muted) }

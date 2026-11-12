@@ -40,6 +40,57 @@ re-email, strangers can't see another driver's confirmation, bad values and wron
   satellite view, the track's website where known, and what's coming up there.
 - `db/calendar.sql` (tracks, calendar entries; dealers will add their own once logins exist), `db/seed-calendar-2027.sql`.
 
+## Order Angel: dealer orders (working, not live yet)
+
+Dealers keep ordering on the Tillotson website (WooCommerce, spare-parts finder). Each order arrives here by webhook
+and moves through five stages, each with its own colour: **Submitted** (blue) → **Verified** (purple) → **In progress**
+(amber) → **Shipped** (green) → **Received** (grey). Red is only ever the overdue flag.
+
+| Who | What they do |
+|---|---|
+| Mark, Andrew (admin) | Get told of every new order. Verify it, or edit it and send it to the dealer for approval. Tell the dealer about delays with a new date. Cancel after a phone call. See everything; finished orders go to the Archive |
+| Shane (factory) | Sees everything, prices included. Starts processing, reports problems to Mark and Andrew, adds parcels with tracking (an order can ship in several), adds the invoice number |
+| Dealer | Sees only their own orders. Approves or queries edits, presses Received (all good / damaged / missing, with photos), messages Tillotson, New order (opens the website), Reorder |
+
+- **Flags:** any order that hasn't moved in 14 days *in its current stage* is flagged. A delay notice with a new date holds the
+  flag until that date passes. Mark and Andrew get a daily list.
+- **Received:** the dealer is reminded every 3 days; after 30 days the order closes as "not confirmed".
+  14 / 3 / 30 are in the `oa_settings` table, not in code.
+- **Edits:** the dealer approves first; only then are the changes written to WooCommerce (remove, change, add lines;
+  a new part number is looked up on the website for its name and price). If the website refuses, the order says so and has a Try again button.
+- **WooCommerce stays in step:** Verified / In progress → *processing*, Shipped → *completed*, Cancelled → *cancelled*;
+  tracking and invoice numbers are added as private order notes / meta. A cancel or completed set on the website is picked up here.
+- Every order has a message thread (with staff-only notes), a full history of who did what, and emails for every notification.
+
+| Path | What it is |
+|---|---|
+| `db/orders.sql` | Dealers, accounts and roles, orders, lines, edit proposals, parcels, problems, messages, photos, history, notifications, settings |
+| `src/lib/orders/rules.ts` | Who can do what at which stage, flags, reminders, turning an edit into a WooCommerce update. Tested: `test/orders.test.ts` |
+| `src/lib/orders/service.ts` | Every action, in one transaction each, then emails and website updates |
+| `src/lib/orders/woo.ts`, `woo-map.ts` | WooCommerce REST API and webhook signatures |
+| `src/app/orders/` | The screens: `/orders` (list), `/orders/<id>` (the order), `/orders/notifications` |
+| `src/app/api/woo/webhook` | Where WooCommerce sends new and updated orders |
+| `src/app/api/orders/daily` | The daily check (scheduled in `vercel.json`) |
+| `src/app/api/orders/import` | One-off: bring the open website orders in at Submitted, for triage |
+| `wordpress/order-angel-helper.php` | Tiny must-use plugin for the website: recalculates tax and totals after an approved edit |
+
+Tested end to end in a browser: an order from the webhook, edited by Mark (chains 10 → 6, B9 plugs swapped for B10), approved by
+the dealer, started and a problem raised by Shane, delay notice by Mark, shipped in two parcels, invoiced, received damaged with a
+photo, then reordered. Also against a stand-in WooCommerce: the exact updates sent, prices looked up by SKU, new item ids taken back.
+Checked: dealers can't see each other's orders, forged sign-ins and unsigned webhooks are refused, repeated webhook deliveries are handled once.
+
+**Try it locally:** `npm run db:local`, `npm run dev`, open `/orders` and pick who to be (Mark, Shane or a demo dealer).
+That sign-in page is for testing only; Tillotson ID replaces it.
+
+**To go live:**
+1. Tillotson ID sign-in (the app's accounts, mapped to these roles). Until then nobody can sign in in production.
+2. On the website: a read/write REST API key (`WOO_URL`, `WOO_KEY`, `WOO_SECRET`); two webhooks, *Order created* and
+   *Order updated*, to `APP_URL/api/woo/webhook` with a secret (`WOO_WEBHOOK_SECRET`); upload `wordpress/order-angel-helper.php`
+   to `wp-content/mu-plugins/`. Test on a staging copy first.
+3. Turn off WooCommerce's own *Processing order* and *Completed order* customer emails, or dealers get two of each.
+4. Each dealer's website customer account linked to its dealer (new ones appear marked "New dealer: set up").
+5. Run the import once, then Mark and Andrew triage the open orders.
+
 ## Run it
 
 ```
