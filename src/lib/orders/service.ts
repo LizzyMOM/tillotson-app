@@ -314,7 +314,7 @@ export async function pushProposal(proposalId: string) {
   try {
     const current = mapWooOrder(await woo.getOrder(Number(p.woo_order_id)));
     const updated = await woo.updateOrder(Number(p.woo_order_id), { line_items: wooLineItems(current.items, p.lines as Line[]) });
-    await woo.addNote(Number(p.woo_order_id), `Order changed in the ${SYSTEM_NAME} and approved by the dealer.`);
+    await woo.addNote(Number(p.woo_order_id), `Order changed in ${SYSTEM_NAME} and approved by the dealer.`);
     await upsertFromWoo(updated, "edit");
     await sql`update oa_proposals set pushed_at = now(), push_error = null where id = ${p.id}`;
   } catch (e) {
@@ -479,7 +479,7 @@ export async function reorder(v: Viewer, fromId: string, qtys: Map<string, numbe
   const [src] = await sql`select o.shipping_address, o.billing_address, d.woo_customer_id from oa_orders o join oa_dealers d on d.id = o.dealer_id where o.id = ${fromId}`;
   if (woo.wooConfigured() && src.woo_customer_id != null) {
     const created = await woo.createOrder(Number(src.woo_customer_id), lines.map((l) => ({ product_id: l.wooProductId, sku: l.sku, quantity: l.qty })),
-      `Reorder of #${d.order.number} from the ${SYSTEM_NAME}`, { billing: src.billing_address, shipping: src.shipping_address });
+      `Reorder of #${d.order.number} from ${SYSTEM_NAME}`, { billing: src.billing_address, shipping: src.shipping_address });
     return (await upsertFromWoo(created, "reorder", v.id)).id;
   }
   // No website connected (local testing): make the order in the app only.
@@ -549,7 +549,7 @@ export async function upsertFromWoo(w: WooOrder, via: "webhook" | "import" | "ed
       await notify(q, after, o, ["admins", "factory"], `Order ${n(o)} cancelled on the website`, `Order ${n(o)} was set to ${m.status} in WooCommerce, so it's now cancelled here too.`);
     } else if (m.status === "completed" && ["submitted", "verified", "in_progress"].includes(o.stage)) {
       await setStage(q, o, "shipped", null, [], { via: "website" });
-      await notify(q, after, o, ["admins"], `Order ${n(o)} completed on the website`, `Order ${n(o)} was marked completed in WooCommerce without shipping details. Add the tracking in the ${SYSTEM_NAME} so the dealer gets it.`);
+      await notify(q, after, o, ["admins"], `Order ${n(o)} completed on the website`, `Order ${n(o)} was marked completed in WooCommerce without shipping details. Add the tracking in ${SYSTEM_NAME} so the dealer gets it.`);
     }
     return { id: ex.id as string, created: false };
   });

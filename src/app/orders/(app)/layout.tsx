@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { currentViewer } from "@/lib/orders/session";
 import { counts } from "@/lib/orders/service";
 import { signOutAction } from "../actions";
+import { TomLogo } from "../ui";
 import { SYSTEM_NAME } from "@/lib/orders/name";
 
 export const metadata: Metadata = { title: SYSTEM_NAME };
@@ -20,7 +21,7 @@ export default async function OrdersLayout({ children }: { children: React.React
     <main className="shell oa">
       <header className="top">
         <div className="topline">
-          <Link href="/orders" className="ev" style={{ textDecoration: "none" }}>{SYSTEM_NAME}</Link>
+          <Link href="/orders" className="ev brand">{/* TOM */}<TomLogo />{SYSTEM_NAME}</Link>
           <div className="who">
             <Link href="/orders/notifications" className="bell">Notifications{c.unread ? <b>{c.unread}</b> : null}</Link>
             <span>{v.name} · {v.role === "dealer" ? v.dealerName : ROLE[v.role]}</span>

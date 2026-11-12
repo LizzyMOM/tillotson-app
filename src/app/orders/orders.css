@@ -135,3 +135,6 @@
   .oa .edit input.p { width: 84px }
   .oa .edit th, .oa .edit td { padding-left: 4px !important; padding-right: 4px !important }
 }
+
+/* TOM logo beside the name in the top bar */
+.oa .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none }

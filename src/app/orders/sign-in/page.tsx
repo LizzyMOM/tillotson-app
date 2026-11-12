@@ -2,6 +2,7 @@ import "../orders.css";
 import { devSignInAllowed } from "@/lib/orders/session";
 import { accountsForSignIn } from "@/lib/orders/service";
 import { signInAction } from "../actions";
+import { TomLogo } from "../ui";
 import { SYSTEM_NAME } from "@/lib/orders/name";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export default async function SignIn() {
   const people = allowed ? await accountsForSignIn() : [];
   return (
     <main className="shell oa">
-      <header className="top"><div className="ev">{SYSTEM_NAME}</div><h1>Sign in</h1></header>
+      <header className="top"><div className="ev brand"><TomLogo />{SYSTEM_NAME}</div><h1>Sign in</h1></header>
       <div className="stripe" />
       <div className="body">
         {!allowed ? (

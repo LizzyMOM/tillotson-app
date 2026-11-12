@@ -26,3 +26,15 @@ export const ago = (d: Date | string) => {
   const days = Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000);
   return days <= 0 ? "under a day" : days === 1 ? "1 day" : `${days} days`;
 };
+
+/** The TOM logo: T, a ticked O, M. Letters take the text colour; the tick is green. */
+export function TomLogo({ size = 26 }: { size?: number }) {
+  return (
+    <svg width={size * 2.6} height={size} viewBox="0 0 104 40" role="img" aria-label="TOM" style={{ display: "block", flex: "none" }}>
+      <path d="M0 2h28v8h-9.5v28h-9V10H0z" fill="currentColor" />
+      <circle cx="51" cy="20" r="15" fill="none" stroke="currentColor" strokeWidth="7" />
+      <path d="M43.5 20.5l5 5 10-11" fill="none" stroke="#3CC273" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M74 38V2h10l6 17 6-17h8v36h-8.5V18l-4.5 13h-3l-4.5-13v20z" fill="currentColor" />
+    </svg>
+  );
+}
