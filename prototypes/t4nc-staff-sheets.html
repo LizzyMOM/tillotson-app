@@ -99,7 +99,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;line-height:1.05;
 .go{min-height:60px;border:0;border-radius:14px;background:var(--accent);color:#fff;font:700 22px var(--f-display);text-transform:uppercase;cursor:pointer;width:100%}
 .go.alt{background:var(--surface);color:var(--ink);border:2px solid var(--line);min-height:48px;font-size:18px}
 .go:disabled{opacity:.45;cursor:not-allowed}
-.pay{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .pay button{min-height:56px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font:700 14px/1.15 var(--f-body);cursor:pointer;color:var(--ink);padding:4px}
 .pay button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
 .logline{font:600 13px var(--f-body);color:var(--muted);text-align:center}
@@ -146,7 +146,8 @@ td.full{color:var(--ok);font-weight:700}
       <li>Each sheet lists only the drivers it applies to: Option 1 for karts, toolbox renters for toolboxes, and so on.</li>
       <li>Returns only accept items that were handed out, and show what that driver took.</li>
       <li>Lead: if a driver needs more weight, open their lead record and tap Add more lead. Each top-up is counted, charged and logged, and the return checks against the full total.</li>
-      <li>Missing tools and missing lead are priced from the organiser's list and charged by card, cash or from the €300 deposit.</li>
+      <li>Missing tools and missing lead are priced from the organiser's list and paid on the spot by card or cash.</li>
+      <li>Staff never see the €300 deposit. It's held until after the event. Kart damage recorded at kart return goes to admin, who decides any deduction.</li>
       <li>Organisers can add a sheet for any other item and choose who gets it, whether it comes back and what it costs.</li>
       <li>Prices for tools and lead are placeholders until the organiser sets them.</li>
     </ul></div>
@@ -257,7 +258,7 @@ function head(d){return h("div",{class:"hd"},h("div",{class:"n",text:String(d.nu
 function check(label,key){const D=S.draft;return h("label",{class:"chk"+(D[key]?" on":"")},h("input",{type:"checkbox",checked:D[key],onchange:e=>{D[key]=e.target.checked;render()}}),label)}
 function payBlock(amount,what){const D=S.draft;
   return[h("div",{class:"lbl",text:"Take payment · "+eur(amount)+" "+what}),h("div",{class:"pay",role:"group","aria-label":"Payment method"},
-    [["Card","Card terminal"],["Cash","Cash"],["Deposit","From €300 deposit"]].map(([k,l])=>h("button",{type:"button","aria-pressed":String(D.method===k),onclick:()=>{D.method=k;render()}},l)))]}
+    [["Card","Card terminal"],["Cash","Cash"]].map(([k,l])=>h("button",{type:"button","aria-pressed":String(D.method===k),onclick:()=>{D.method=k;render()}},l)))]}
 function confirm(sh,d,data,label,charge,chargeWhat){
   if(sh.id==="leadout")return confirmLead(d,charge);
   REC[sh.id][d.num]={at:stamp(),by:ME_STAFF+" (you)",data};if(charge){PAY.push({sheet:sh.id,what:chargeWhat,amt:charge,method:S.draft.method,ref:sh.id+":"+d.num})}
@@ -293,7 +294,7 @@ function doneView(sh,d,r){
   if(x.kg)items.push(h("div",{class:"big",text:x.kg+" kg lead · "+x.pieces.map((n,i)=>n?n+"×"+LEAD[i].label:null).filter(Boolean).join(", ")}));
   if(x.missing&&x.missing.length)items.push(h("div",{class:"note over",text:"Missing: "+x.missing.join(", ")}));
   if(x.charge)items.push(h("div",{class:"note warn",text:"Charged "+eur(x.charge)+" · "+x.method}));
-  if(x.damage)items.push(h("div",{class:"note warn",text:"Damage noted: "+x.damage}));
+  if(x.damage)items.push(h("div",{class:"note warn",text:"Damage reported to admin: "+x.damage}));
   if(x.ref)items.push(h("div",{class:"big",text:x.ref}));
   return[[h("div",{class:"dcard"},items)],[h("button",{class:"go alt",type:"button",onclick:()=>{for(let i=PAY.length-1;i>=0;i--)if(PAY[i].ref===sh.id+":"+d.num)PAY.splice(i,1);delete REC[sh.id][d.num];FEED.unshift({at:stamp(),by:ME_STAFF+" (you)",txt:"Undone: "+sh.name+" · #"+d.num});toast("Undone");}},"Undo")]]}
 function driverView(sh,d){
@@ -315,12 +316,11 @@ function driverView(sh,d){
       h("div",{class:"pm"},h("button",{type:"button","aria-label":"Remove "+p.label,onclick:()=>{D.pieces[i]=Math.max(0,D.pieces[i]-1);render()}},"−"),h("button",{type:"button","aria-label":"Add "+p.label,onclick:()=>{D.pieces[i]++;render()}},"+"))))),
       h("div",{class:"tl"},h("div",null,h("span",{text:r?"Adding":"Total weight"}),h("span",{text:kg+" kg"})),r?h("div",null,h("span",{text:"New total with driver"}),h("span",{text:(r.data.kg+kg)+" kg"})):null,h("div",{class:"t"},h("span",{text:r?"To pay now":"Rental"}),h("span",{text:eur(charge)})))));
     if(r)label="added";
-    if(kg)card.push(h("div",{class:"blk"},payBlock(charge,r?"for the extra lead":"lead rental")));ready=kg>0&&D.method&&D.method!=="Deposit";
-    if(D.method==="Deposit")card.push(h("div",{class:"note warn",text:"Rental is paid now by card or cash. The deposit only covers losses and damage."}))}
+    if(kg)card.push(h("div",{class:"blk"},payBlock(charge,r?"for the extra lead":"lead rental")));ready=kg>0&&!!D.method}
   else if(sh.id==="kartret"){const k=out.data;card.push(h("div",{class:"blk"},h("span",{class:"lbl",text:"Taking back kart "+k.kartNo}),check("Kart","kart"),check("Trolley","trolley"),check("Both keys","keys"),check("Seat","seat"),
       h("div",{class:"fld"},h("label",{class:"lbl",for:"dmg",text:"Damage (optional)"}),h("input",{id:"dmg",value:D.damage,placeholder:"e.g. bent track rod",oninput:e=>{D.damage=e.target.value},onchange:()=>render()})),
-      D.damage.trim()?h("div",{class:"fld"},h("label",{class:"lbl",for:"ded",text:"Deduct from €300 deposit (€)"}),h("input",{id:"ded",type:"number",min:"0",max:String(DEPOSIT),inputmode:"decimal",value:D.deduct,oninput:e=>{D.deduct=e.target.value},onchange:()=>render()})):null));
-    const missing=["kart","trolley","keys","seat"].filter(k=>!D[k]);charge=Math.min(DEPOSIT,+D.deduct||0);chargeWhat="Kart damage";if(charge)D.method="Deposit";
+      D.damage.trim()?h("div",{class:"note warn",text:"Damage goes to admin with your name and the time. Nothing is charged here."}):null));
+    const missing=["kart","trolley","keys","seat"].filter(k=>!D[k]);charge=0;
     if(missing.length)card.push(h("div",{class:"note over",text:"Tick every item as it comes back. Still to check: "+missing.join(", ")+"."}));ready=!missing.length;label="returned"}
   else if(sh.id==="toolret"){const miss=TOOLS.filter(([t])=>D.missing[t]);charge=miss.reduce((a,[,p])=>a+p,0);chargeWhat="Missing tools";
     card.push(h("div",{class:"blk"},h("span",{class:"lbl",text:"Toolbox "+out.data.boxNo+" · tap anything missing"}),TOOLS.map(([t,p])=>h("div",{class:"tool"+(D.missing[t]?" miss":"")},h("span",{text:t}),h("small",{text:eur(p)}),
@@ -335,7 +335,7 @@ function driverView(sh,d){
   else{/* custom sheet */
     if(sh.field)card.push(h("div",{class:"fld"},h("label",{class:"lbl",for:"cref",text:sh.field}),h("input",{id:"cref",value:D.ref,oninput:e=>{D.ref=e.target.value},onchange:()=>render()})));
     if(sh.kind==="ret")card.push(h("div",{class:"big",text:"Taking back: "+sh.name.replace(/ return$/,"")}));
-    if(sh.price&&sh.kind==="out"){charge=sh.price;chargeWhat=sh.name;card.push(h("div",{class:"blk"},payBlock(charge,sh.name)));ready=!!D.method&&D.method!=="Deposit"}
+    if(sh.price&&sh.kind==="out"){charge=sh.price;chargeWhat=sh.name;card.push(h("div",{class:"blk"},payBlock(charge,sh.name)));ready=!!D.method}
     if(sh.field&&!D.ref.trim())ready=false;label=sh.kind==="ret"?"returned":"handed out"}
   const data=Object.assign({},D,{charge:charge||null});
   if(sh.id==="leadout")Object.assign(data,{kg:leadKg(D.pieces),paid:charge});
@@ -365,10 +365,10 @@ function createView(){const C=S.create;
 /* ---------- overview ---------- */
 function renderSide(){
   const by=k=>PAY.filter(p=>p.sheet===k).reduce((a,p)=>a+p.amt,0);
-  const tot=PAY.reduce((a,p)=>a+p.amt,0),dep=PAY.filter(p=>p.method==="Deposit").reduce((a,p)=>a+p.amt,0);
+  const tot=PAY.reduce((a,p)=>a+p.amt,0),dmg=Object.values(REC.kartret).filter(r=>r.data&&r.data.damage).length;
   const k=(l,v)=>h("div",{class:"kpi"},h("span",{class:"k",text:l}),h("span",{class:"v",text:v}));
   $("#money").replaceChildren(k("Total charged",eur(tot)),k("Lead rental",eur(by("leadout"))),k("Missing tools",eur(by("toolret"))),k("Missing lead",eur(by("leadret"))),
-    k("Kart damage",eur(by("kartret"))),k("From deposits",eur(dep)),...SHEETS.filter(s=>s.price).map(s=>k(s.name,eur(by(s.id)))));
+    k("Kart damage reports",dmg+" for admin"),...SHEETS.filter(s=>s.price).map(s=>k(s.name,eur(by(s.id)))));
   $("#overview").replaceChildren(h("table",null,h("thead",null,h("tr",null,h("th",{text:"Sheet"}),h("th",{text:"Who"}),h("th",{text:"Done"}))),
     h("tbody",null,SHEETS.map(sh=>{const c=counts(sh);const pct=c.due?c.done/c.due:0;return h("tr",null,h("td",{text:sh.name}),h("td",{text:sh.kind==="ret"?"Took one":WHO[sh.who][0]}),
       h("td",{class:pct>=1&&c.due?"full":null},sh.optional?c.done+" rented":c.done+" / "+c.due,sh.optional?null:h("span",{class:"bar2"},h("i",{style:"width:"+pct*100+"%"}))))}))));
