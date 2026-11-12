@@ -5,8 +5,9 @@ import type { Metadata } from "next";
 import { currentViewer } from "@/lib/orders/session";
 import { counts } from "@/lib/orders/service";
 import { signOutAction } from "../actions";
+import { SYSTEM_NAME } from "@/lib/orders/name";
 
-export const metadata: Metadata = { title: "Order Angel · Tillotson" };
+export const metadata: Metadata = { title: SYSTEM_NAME };
 export const dynamic = "force-dynamic";
 
 const ROLE: Record<string, string> = { admin: "Admin", factory: "Factory", dealer: "Dealer" };
@@ -19,7 +20,7 @@ export default async function OrdersLayout({ children }: { children: React.React
     <main className="shell oa">
       <header className="top">
         <div className="topline">
-          <Link href="/orders" className="ev" style={{ textDecoration: "none" }}>Tillotson · Order Angel</Link>
+          <Link href="/orders" className="ev" style={{ textDecoration: "none" }}>{SYSTEM_NAME}</Link>
           <div className="who">
             <Link href="/orders/notifications" className="bell">Notifications{c.unread ? <b>{c.unread}</b> : null}</Link>
             <span>{v.name} · {v.role === "dealer" ? v.dealerName : ROLE[v.role]}</span>

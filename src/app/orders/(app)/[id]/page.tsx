@@ -153,7 +153,7 @@ export default async function OrderPage({ params, searchParams }: P) {
             <div className="thread">
               {d.messages.map((m) => (
                 <div key={m.id} className={"msg" + (m.author_id === v.id ? " mine" : "") + (m.internal ? " internal" : "")}>
-                  <span className="by">{m.author_name ?? "Order Angel"}{m.author_role === "dealer" ? "" : m.author_role ? " · Tillotson" : ""} · {when(m.created_at)}{m.internal ? " · staff only" : ""}</span>
+                  <span className="by">{m.author_name ?? "Tillotson"}{m.author_role === "dealer" ? "" : m.author_role ? " · Tillotson" : ""} · {when(m.created_at)}{m.internal ? " · staff only" : ""}</span>
                   {m.body}
                 </div>
               ))}

@@ -11,6 +11,7 @@ import {
 import { mapWooOrder, type WooOrder, type MappedItem } from "./woo-map";
 import * as woo from "./woo";
 import type { Viewer } from "./session";
+import { SYSTEM_NAME } from "./name";
 
 // Order Angel · everything that reads or changes an order. Every action checks rules.can() first,
 // writes in one transaction, then (after it commits) sends notifications and updates WooCommerce.
@@ -46,7 +47,7 @@ async function notify(q: Q, after: After, o: { id: string; dealerId: string; num
     const [n] = await q`insert into oa_notifications (account_id, order_id, title, body) values (${p.id}, ${o.id}, ${title}, ${body}) returning id`;
     after.push(async () => {
       try {
-        await sendMail({ to: p.email, subject: `${title} · Order Angel`, text: `${body}\n\nOpen the order: ${orderLink(o.id)}\n\nOrder Angel · Tillotson` });
+        await sendMail({ to: p.email, subject: `${title} · ${SYSTEM_NAME}`, text: `${body}\n\nOpen the order: ${orderLink(o.id)}\n\n${SYSTEM_NAME}` });
         await sql`update oa_notifications set emailed_at = now() where id = ${n.id}`;
       } catch (e) { console.error("Order Angel email failed", e); }
     });
@@ -313,7 +314,7 @@ export async function pushProposal(proposalId: string) {
   try {
     const current = mapWooOrder(await woo.getOrder(Number(p.woo_order_id)));
     const updated = await woo.updateOrder(Number(p.woo_order_id), { line_items: wooLineItems(current.items, p.lines as Line[]) });
-    await woo.addNote(Number(p.woo_order_id), "Order changed in Order Angel and approved by the dealer.");
+    await woo.addNote(Number(p.woo_order_id), `Order changed in the ${SYSTEM_NAME} and approved by the dealer.`);
     await upsertFromWoo(updated, "edit");
     await sql`update oa_proposals set pushed_at = now(), push_error = null where id = ${p.id}`;
   } catch (e) {
@@ -478,7 +479,7 @@ export async function reorder(v: Viewer, fromId: string, qtys: Map<string, numbe
   const [src] = await sql`select o.shipping_address, o.billing_address, d.woo_customer_id from oa_orders o join oa_dealers d on d.id = o.dealer_id where o.id = ${fromId}`;
   if (woo.wooConfigured() && src.woo_customer_id != null) {
     const created = await woo.createOrder(Number(src.woo_customer_id), lines.map((l) => ({ product_id: l.wooProductId, sku: l.sku, quantity: l.qty })),
-      `Reorder of #${d.order.number} from Order Angel`, { billing: src.billing_address, shipping: src.shipping_address });
+      `Reorder of #${d.order.number} from the ${SYSTEM_NAME}`, { billing: src.billing_address, shipping: src.shipping_address });
     return (await upsertFromWoo(created, "reorder", v.id)).id;
   }
   // No website connected (local testing): make the order in the app only.
@@ -548,7 +549,7 @@ export async function upsertFromWoo(w: WooOrder, via: "webhook" | "import" | "ed
       await notify(q, after, o, ["admins", "factory"], `Order ${n(o)} cancelled on the website`, `Order ${n(o)} was set to ${m.status} in WooCommerce, so it's now cancelled here too.`);
     } else if (m.status === "completed" && ["submitted", "verified", "in_progress"].includes(o.stage)) {
       await setStage(q, o, "shipped", null, [], { via: "website" });
-      await notify(q, after, o, ["admins"], `Order ${n(o)} completed on the website`, `Order ${n(o)} was marked completed in WooCommerce without shipping details. Add the tracking in Order Angel so the dealer gets it.`);
+      await notify(q, after, o, ["admins"], `Order ${n(o)} completed on the website`, `Order ${n(o)} was marked completed in WooCommerce without shipping details. Add the tracking in the ${SYSTEM_NAME} so the dealer gets it.`);
     }
     return { id: ex.id as string, created: false };
   });
@@ -610,7 +611,7 @@ export async function dailyCheck(now = new Date()) {
     const admins = await sql`select id, email from oa_accounts where role = 'admin' and active`;
     for (const a of admins) {
       await sql`insert into oa_notifications (account_id, title, body) values (${a.id}, ${`${flagged.length === 1 ? "1 order needs" : `${flagged.length} orders need`} attention`}, ${body})`;
-      try { await sendMail({ to: a.email, subject: `${flagged.length === 1 ? "1 order needs" : `${flagged.length} orders need`} attention · Order Angel`, text: `${body}\n\n${orderLink("").replace(/\/$/, "")}?stage=flagged` }); } catch (e) { console.error(e); }
+      try { await sendMail({ to: a.email, subject: `${flagged.length === 1 ? "1 order needs" : `${flagged.length} orders need`} attention · ${SYSTEM_NAME}`, text: `${body}\n\n${orderLink("").replace(/\/$/, "")}?stage=flagged` }); } catch (e) { console.error(e); }
     }
   }
   return { reminded, closed, flagged: flagged.length };

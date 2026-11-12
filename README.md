@@ -40,7 +40,9 @@ re-email, strangers can't see another driver's confirmation, bad values and wron
   satellite view, the track's website where known, and what's coming up there.
 - `db/calendar.sql` (tracks, calendar entries; dealers will add their own once logins exist), `db/seed-calendar-2027.sql`.
 
-## Order Angel: dealer orders (working, not live yet)
+## Tillotson Order Management System: dealer orders (working, not live yet)
+
+Shown to people as **Tillotson Order Management System** (set in `src/lib/orders/name.ts`); called Order Angel in the code (`oa_` tables, `src/lib/orders/`).
 
 Dealers keep ordering on the Tillotson website (WooCommerce, spare-parts finder). Each order arrives here by webhook
 and moves through five stages, each with its own colour: **Submitted** (blue) → **Verified** (purple) → **In progress**
