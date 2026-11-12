@@ -125,3 +125,13 @@
 .oa .notif time { font: 600 12px var(--f-body); color: var(--muted) }
 .oa .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
 .oa .muted { color: var(--muted) }
+
+/* Edit order: a new part's number and name side by side on a computer, stacked on a phone so both are usable */
+.oa .edit .newpart { display: flex; gap: 8px }
+@media (max-width: 560px) {
+  .oa .edit .newpart { flex-direction: column; gap: 6px; min-width: 150px }
+  .oa .edit input { font-size: 16px; padding: 6px 8px }   /* 16px stops phones zooming in on tap */
+  .oa .edit input.q { width: 58px }
+  .oa .edit input.p { width: 84px }
+  .oa .edit th, .oa .edit td { padding-left: 4px !important; padding-right: 4px !important }
+}

@@ -358,7 +358,7 @@ function EditForm({ id, lines, cur }: { id: string; lines: (Line & { id: string 
               const i = lines.length + k;
               return (
                 <tr key={"new" + k}>
-                  <td style={cell}><div className="row" style={{ flexWrap: "nowrap" }}>
+                  <td style={cell}><div className="newpart">
                     <input name={`sku_${i}`} placeholder="New part number" aria-label="New part number" />
                     <input name={`name_${i}`} placeholder="Name (optional)" aria-label="New part name" />
                   </div></td>
